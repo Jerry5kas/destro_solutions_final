@@ -5,7 +5,7 @@
             <!-- Logo & Contact Info -->
             <div class="footer-brand">
                 <div class="mb-5">
-                    <h2 class="text-2xl font-medium text-[#0D0DE0] tracking-tight" style="font-family: 'Manrope', sans-serif; font-weight: 500;">
+                    <h2 class="text-3xl md:text-4xl text-[#0D0DE0] tracking-tight passero-one-regular">
                         DestroSolutions
                     </h2>
                 </div>

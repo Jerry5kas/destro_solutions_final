@@ -40,23 +40,23 @@
     <!-- Content -->
     <div class="relative z-20 h-full flex items-center pointer-events-none">
         <div class="mx-auto max-w-[1280px] px-4 md:px-8 w-full">
-            <div class="w-full space-y-10">
+            <div class="w-full  space-y-10">
                 <div class="space-y-10">
                     <!-- Big Text -->
-                    <h1 class="hero-title text-2xl sm:text-8xl font-bold text-white leading-tight mb-4 md:mb-6 drop-shadow-lg">
+                    <h1 class="hero-title text-2xl sm:text-8xl font-extrabold text-white leading-tight mb-4 md:mb-6 drop-shadow-lg">
                         Software Defined Vehicles
                     </h1>
 
                     <!-- Medium Text -->
                     <p class="hero-subtitle text-xl sm:text-4xl text-white mb-8 md:mb-10 font-bold drop-shadow-md">
-                        Innovative Tomorrow <span class="text-blue-700 hero-mobility">Mobility</span>
+                        Innovative Tomorrow <span class="text-blue-700 font-bold hero-mobility">Mobility</span>
                     </p>
                 </div>
 
                 <!-- Connect Us Button -->
                 <a
                     href="#contact"
-                    class="hero-button inline-block px-8 py-3 bg-[#0D0DE0] text-white font-semibold text-lg rounded-full hover:bg-[#0a0ab3] transition-colors duration-300 shadow-lg hover:shadow-xl transform hover:scale-105 pointer-events-auto"
+                    class="hero-button inline-block mt-0 sm:mt-16 px-8 py-3 bg-[#0D0DE0] text-white font-semibold text-lg rounded-full hover:bg-[#0a0ab3] transition-colors duration-300 shadow-lg hover:shadow-xl transform hover:scale-105 pointer-events-auto"
                 >
                     Connect Us
                 </a>

@@ -42,10 +42,10 @@
   <header id="{{ $navId }}" class="fixed top-0 w-full bg-white" style="display: block !important; visibility: visible !important; opacity: 1 !important; position: fixed !important; z-index: 10000 !important;">
     
     <div id="{{ $logoBarId }}" class="logo-bar">
-      <div class="mx-auto max-w-[1280px] px-4 md:px-8 py-5 md:py-6 flex items-center justify-between gap-4">
+      <div class="mx-auto max-w-[1280px] px-4 md:px-8 py-3 sm:py-4 md:py-5 lg:py-6 flex items-center justify-between gap-2 sm:gap-4">
         <div id="{{ $logoInBarId }}" class="flex items-center">
           <div class="flex flex-col leading-tight">
-            <span class="text-2xl font-semibold text-[#0D0DE0] tracking-tight font-inter">Destrsolutions</span>
+            <span class="text-xl sm:text-2xl md:text-3xl lg:text-4xl text-[#0D0DE0] tracking-tight passero-one-regular">Destrsolutions</span>
             <span class="hidden md:block text-xs font-bold text-gray-500">{{ __('Bringing SDV to Life') }}</span>
           </div>
         </div>
@@ -61,8 +61,9 @@
       <nav id="{{ $mainNavId }}">
         <div class="mx-auto max-w-[1280px] px-4 md:px-8 relative flex items-center w-full">
           <!-- Logo Image - Only visible in collapsed mode, positioned absolutely -->
+          <!-- Logo Text - Only visible in collapsed mode -->
           <div id="{{ $prefix }}-d-logo" class="nav-d-logo select-none">
-            <img src="{{ asset('storage/LOGO/DS1.png') }}" alt="Destro Solutions Logo" class="h-10 w-auto rounded-md">
+            <span class="text-xl sm:text-2xl md:text-3xl text-[#0D0DE0] passero-one-regular">DS</span>
           </div>
 
           <ul class="nav-list hidden sm:flex items-center gap-8 overflow-x-auto text-gray-600 flex-1">

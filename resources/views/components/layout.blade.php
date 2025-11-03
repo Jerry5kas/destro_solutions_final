@@ -11,8 +11,8 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     
-    <!-- Fonts: Orbitron (Logo), Manrope (Global) -->
-    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;500;600;700;800;900&family=Manrope:wght@200;300;500&display=swap" rel="stylesheet">
+    <!-- Fonts: Passero One (Logo), Orbitron (Logo), Montserrat (Body & Headings) -->
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:ital,wght@0,100..900;1,100..900&family=Passero+One&family=Orbitron:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
     
     <!-- Vite Assets -->
     @vite(['resources/css/app.css', 'resources/js/app.js'])
@@ -26,10 +26,12 @@
             height: 100%; 
         }
         
-        /* Global font assignments - Manrope */
+        /* Global font assignments - Montserrat */
         body { 
-            font-family: 'Manrope', system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, sans-serif;
-            font-weight: 300; /* Light for body text */
+            font-family: "Montserrat", sans-serif;
+            font-optical-sizing: auto;
+            font-weight: 400; /* Regular for body text */
+            font-style: normal;
             /* Add padding-top to account for fixed navbar */
             /* Expanded: logo-bar (64px) + nav-wrap (~64px) = ~128px */
             /* Collapsed: nav-wrap only (~64px) */
@@ -42,33 +44,57 @@
             padding-top: var(--navbar-collapsed-height, 64px);
         }
         
-        /* Logo font - Orbitron */
-        #logoInBar, .nav-logo {
-            font-family: 'Orbitron', sans-serif;
+        /* Logo font - Passero One - Ensure it overrides all other font rules */
+        #logoInBar, 
+        #logoInBar span,
+        #logoInBar *,
+        .nav-logo, 
+        .passero-one-regular,
+        .passero-one-regular *,
+        .footer-brand h2,
+        .footer-brand h2 *,
+        header .logo-bar span,
+        header .logo-bar * {
+            font-family: "Passero One", sans-serif !important;
+            font-weight: 400 !important;
+            font-style: normal !important;
+            font-optical-sizing: auto;
         }
         
-        /* All headings - Manrope Medium 500 */
+        /* All headings - Montserrat Medium 500 */
         h1, h2, h3, h4, h5, h6 {
-            font-family: 'Manrope', sans-serif;
+            font-family: "Montserrat", sans-serif;
+            font-optical-sizing: auto;
             font-weight: 500;
+            font-style: normal;
         }
         
-        /* Banner titles - Manrope Medium 500 */
+        /* Banner titles - Montserrat Medium 500 */
         .hero-title,
         .hero-main h1,
         .banner-title {
-            font-family: 'Manrope', sans-serif !important;
+            font-family: "Montserrat", sans-serif !important;
+            font-optical-sizing: auto;
             font-weight: 500 !important;
+            font-style: normal;
         }
         
-        /* Ensure all body text uses Light 300 */
-        p, span:not(.font-bold):not(.font-semibold):not(.font-medium), li, td, th, label {
-            font-weight: 300;
+        /* Ensure all body text uses Regular 400 - but exclude logo elements */
+        p:not(.passero-one-regular):not(.passero-one-regular *), 
+        span:not(.passero-one-regular):not(#logoInBar):not(#logoInBar *):not(.font-bold):not(.font-semibold):not(.font-medium):not(h1):not(h2):not(h3):not(h4):not(h5):not(h6), 
+        li, td, th, label {
+            font-family: "Montserrat", sans-serif;
+            font-optical-sizing: auto;
+            font-weight: 400;
+            font-style: normal;
         }
         
-        /* Links use Light 300 by default */
-        a:not(.font-bold):not(.font-semibold):not(.font-medium) {
-            font-weight: 300;
+        /* Links use Regular 400 by default */
+        a:not(.font-bold):not(.font-semibold):not(.font-medium):not(h1):not(h2):not(h3):not(h4):not(h5):not(h6) {
+            font-family: "Montserrat", sans-serif;
+            font-optical-sizing: auto;
+            font-weight: 400;
+            font-style: normal;
         }
         
         /* Ensure all headings use Medium 500 */
@@ -198,8 +224,26 @@
             display: block !important;
             visibility: visible !important;
             opacity: 1 !important;
-            /* Ensure nav-wrap has a minimum height */
-            min-height: 50px;
+            /* Ensure nav-wrap has a minimum height - reduced on mobile */
+            min-height: 44px;
+        }
+        
+        /* Reduce mobile navbar spacing */
+        @media (max-width: 640px) {
+            .logo-bar > div {
+                padding-top: 0.75rem !important; /* py-3 */
+                padding-bottom: 0.75rem !important;
+            }
+            
+            .nav-wrap nav {
+                padding-top: 0.5rem !important; /* py-2 equivalent */
+                padding-bottom: 0.5rem !important;
+            }
+            
+            .nav-list {
+                padding-top: 0.5rem !important;
+                padding-bottom: 0.5rem !important;
+            }
         }
         
         /* When collapsed, nav-wrap must stay visible */
@@ -341,7 +385,7 @@
         /* CRITICAL: Nav-wrap (primary nav) stays visible and fixed at top when collapsed */
         .header-collapsed .nav-wrap { 
             transform: translateY(0) !important; /* Move to top when logo-bar collapses */
-            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1) !important;
+            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15), 0 2px 8px rgba(0, 0, 0, 0.1) !important;
             overflow: visible !important;
             visibility: visible !important;
             display: block !important;
@@ -417,6 +461,19 @@
             padding-left: 0; /* No padding since D logo is part of flex layout */
             padding-top: 14px; 
             padding-bottom: 14px; 
+        }
+        
+        /* Reduce nav-list padding on mobile */
+        @media (max-width: 640px) {
+            .nav-list {
+                padding-top: 10px !important;
+                padding-bottom: 10px !important;
+            }
+            
+            .header-collapsed .nav-list {
+                padding-top: 8px !important;
+                padding-bottom: 8px !important;
+            }
         }
         
         /* Enhanced Nav Link Styles with Underline Animation */
