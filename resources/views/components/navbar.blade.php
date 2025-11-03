@@ -17,7 +17,7 @@
 
     // Navigation items
     $navItems = [
-        ['label' => __('Home'), 'href' => '#'],
+        ['label' => __('Home'), 'href' => '/'],
         ['label' => __('Quantum'), 'href' => '#'],
         ['label' => __('Services'), 'href' => '#services'],
         ['label' => __('Products'), 'href' => '#products'],

@@ -30,17 +30,16 @@
             <!-- Left Section: About Us Text -->
             <div class="about-content lg:sticky lg:top-24 flex flex-col gap-y-5">
                 <h2 class="text-3xl md:text-4xl font-bold mb-6 about-title">
-                    About Us
+                    {{ __('About Us') }}
                 </h2>
                 <div class=" leading-loose space-y-4 about-text flex-1 text-gray-500 ">
                     <p>
-                        At DestroSolutions, we enable the future of mobility by driving the transition to Software-Defined Vehicles (SDVs). Our expertise spans end-to-end automotive cybersecurity, software update management, functional safety, and E/E architecture transformation.
-                        Our commitment to Safety & security standards, expert training positions us as a trusted partner in delivering tomorrow's mobility—today.
+                        {{ __('At DestroSolutions, we enable the future of mobility by driving the transition to Software-Defined Vehicles (SDVs). Our expertise spans end-to-end automotive cybersecurity, software update management, functional safety, and E/E architecture transformation. Our commitment to Safety & security standards, expert training positions us as a trusted partner in delivering tomorrow\'s mobility—today.') }}
                     </p>
                 </div>
 
                 <button class="max-w-max border-2 border-[#0D0DE0] text-[#0D0DE0] px-4 py-2 rounded-md hover:bg-[#0D0DE0] hover:text-white transition-colors duration-300">
-                    Learn More
+                    {{ __('Learn More') }}
                 </button>
             </div>
 

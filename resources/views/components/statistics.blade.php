@@ -10,9 +10,9 @@
                     </span>
                     <span class="stat-plus text-2xl md:text-3xl lg:text-4xl font-bold text-white leading-tight">+</span>
                 </div>
-                <h3 class="stat-label text-base md:text-lg font-semibold text-white mb-1.5">Deployments</h3>
+                <h3 class="stat-label text-base md:text-lg font-semibold text-white mb-1.5">{{ __('Deployments') }}</h3>
                 <p class="stat-description text-xs md:text-sm text-white/90 leading-relaxed max-w-xs mx-auto">
-                    Vehicle innovations now come from software-based features
+                    {{ __('Vehicle innovations now come from software-based features') }}
                 </p>
             </div>
 
@@ -24,9 +24,9 @@
                     </span>
                     <span class="stat-percent text-2xl md:text-3xl lg:text-4xl font-bold text-white leading-tight">%</span>
                 </div>
-                <h3 class="stat-label text-base md:text-lg font-semibold text-white mb-1.5">Efficiency Boost</h3>
+                <h3 class="stat-label text-base md:text-lg font-semibold text-white mb-1.5">{{ __('Efficiency Boost') }}</h3>
                 <p class="stat-description text-xs md:text-sm text-white/90 leading-relaxed max-w-xs mx-auto">
-                    SDV Transformation
+                    {{ __('SDV Transformation') }}
                 </p>
             </div>
 
@@ -38,9 +38,9 @@
                     </span>
                     <span class="stat-plus text-2xl md:text-3xl lg:text-4xl font-bold text-white leading-tight">+</span>
                 </div>
-                <h3 class="stat-label text-base md:text-lg font-semibold text-white mb-1.5">Man Years</h3>
+                <h3 class="stat-label text-base md:text-lg font-semibold text-white mb-1.5">{{ __('Man Years') }}</h3>
                 <p class="stat-description text-xs md:text-sm text-white/90 leading-relaxed max-w-xs mx-auto">
-                    Expertise in developing next-generation vehicle solutions
+                    {{ __('Expertise in developing next-generation vehicle solutions') }}
                 </p>
             </div>
 

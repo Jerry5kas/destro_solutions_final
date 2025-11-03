@@ -47,35 +47,35 @@
 
             <!-- Quick Links -->
             <div class="footer-links">
-                <h3 class="text-base font-semibold mb-4 text-gray-900">Quick links</h3>
+                <h3 class="text-base font-semibold mb-4 text-gray-900">{{ __('Quick links') }}</h3>
                 <ul class="space-y-2.5 text-sm text-gray-600">
                     <li>
-                        <a href="#home" class="hover:text-[#0D0DE0] transition-colors duration-200 inline-block">Home</a>
+                        <a href="#home" class="hover:text-[#0D0DE0] transition-colors duration-200 inline-block">{{ __('Home') }}</a>
                     </li>
                     <li>
-                        <a href="#products" class="hover:text-[#0D0DE0] transition-colors duration-200 inline-block">Products</a>
+                        <a href="#products" class="hover:text-[#0D0DE0] transition-colors duration-200 inline-block">{{ __('Products') }}</a>
                     </li>
                     <li>
-                        <a href="#services" class="hover:text-[#0D0DE0] transition-colors duration-200 inline-block">Services</a>
+                        <a href="#services" class="hover:text-[#0D0DE0] transition-colors duration-200 inline-block">{{ __('Services') }}</a>
                     </li>
                     <li>
-                        <a href="#trainings" class="hover:text-[#0D0DE0] transition-colors duration-200 inline-block">Trainings</a>
+                        <a href="#trainings" class="hover:text-[#0D0DE0] transition-colors duration-200 inline-block">{{ __('Trainings') }}</a>
                     </li>
                     <li>
-                        <a href="#sdv" class="hover:text-[#0D0DE0] transition-colors duration-200 inline-block">SDV</a>
+                        <a href="#sdv" class="hover:text-[#0D0DE0] transition-colors duration-200 inline-block">{{ __('SDV') }}</a>
                     </li>
                     <li>
-                        <a href="#blog" class="hover:text-[#0D0DE0] transition-colors duration-200 inline-block">Blog</a>
+                        <a href="#blog" class="hover:text-[#0D0DE0] transition-colors duration-200 inline-block">{{ __('Blog') }}</a>
                     </li>
                     <li>
-                        <a href="#contact" class="hover:text-[#0D0DE0] transition-colors duration-200 inline-block">Contact US</a>
+                        <a href="#contact" class="hover:text-[#0D0DE0] transition-colors duration-200 inline-block">{{ __('Contact Us') }}</a>
                     </li>
                 </ul>
             </div>
 
             <!-- Contact Address -->
             <div class="footer-contact">
-                <h3 class="text-base font-semibold mb-4 text-gray-900">Contact us</h3>
+                <h3 class="text-base font-semibold mb-4 text-gray-900">{{ __('Contact us') }}</h3>
                 <div class="space-y-4 text-sm text-gray-600">
                     <div class="flex items-start gap-3">
                         <!-- India Flag SVG -->
@@ -110,7 +110,7 @@
         <!-- Copyright -->
         <div class="border-t border-gray-200 pt-6">
             <p class="text-center text-xs text-gray-500">
-                Copyright © 2025 All Right Reserved By Destro Solutions
+                {{ __('Copyright © 2025 All Right Reserved By Destro Solutions') }}
             </p>
         </div>
     </div>

@@ -1,54 +1,29 @@
 @php
     $services = [
         [
-            'title' => 'Cybersecurity Management Systems',
+            'title' => __('Cybersecurity Management Systems'),
             'icon' => 'security',
-            'description' => 'Comprehensive security solutions for vehicle systems'
+            'description' => __('Comprehensive security solutions for vehicle systems')
         ],
         [
-            'title' => 'Functional Safety',
+            'title' => __('Functional Safety'),
             'icon' => 'safety',
-            'description' => 'Ensuring safety standards and compliance'
+            'description' => __('Ensuring safety standards and compliance')
         ],
         [
-            'title' => 'Software Update Management Systems',
+            'title' => __('Software Update Management Systems'),
             'icon' => 'updates',
-            'description' => 'OTA and software lifecycle management'
+            'description' => __('OTA and software lifecycle management')
         ],
         [
-            'title' => 'ASPICE (Automotive SPICE)',
+            'title' => __('ASPICE (Automotive SPICE)'),
             'icon' => 'aspice',
-            'description' => 'Process improvement and assessment'
+            'description' => __('Process improvement and assessment')
         ],
         [
-            'title' => 'Autosar',
+            'title' => __('Autosar'),
             'icon' => 'autosar',
-            'description' => 'Automotive software architecture standards'
-        ],
-        [
-            'title' => 'Cybersecurity Management Systems',
-            'icon' => 'security',
-            'description' => 'Comprehensive security solutions for vehicle systems'
-        ],
-        [
-            'title' => 'Functional Safety',
-            'icon' => 'safety',
-            'description' => 'Ensuring safety standards and compliance'
-        ],
-        [
-            'title' => 'Software Update Management Systems',
-            'icon' => 'updates',
-            'description' => 'OTA and software lifecycle management'
-        ],
-        [
-            'title' => 'ASPICE (Automotive SPICE)',
-            'icon' => 'aspice',
-            'description' => 'Process improvement and assessment'
-        ],
-        [
-            'title' => 'Autosar',
-            'icon' => 'autosar',
-            'description' => 'Automotive software architecture standards'
+            'description' => __('Automotive software architecture standards')
         ],
     ];
 @endphp
@@ -58,10 +33,10 @@
         <!-- Section Title -->
         <div class="text-center mb-12 md:mb-16">
             <h2 class="text-4xl md:text-5xl lg:text-6xl font-bold text-white mb-6">
-                Services
+                {{ __('Services') }}
             </h2>
             <p class="text-lg md:text-xl text-white/90 max-w-4xl mx-auto leading-relaxed">
-                At DestroSolutions, we provide expert consulting and engineering services to support OEMs and Tier-1 suppliers in delivering secure, compliant, and future-ready vehicle platforms.
+                {{ __('At DestroSolutions, we provide expert consulting and engineering services to support OEMs and Tier-1 suppliers in delivering secure, compliant, and future-ready vehicle platforms.') }}
             </p>
         </div>
 
@@ -113,7 +88,7 @@
 
                             <!-- More Button -->
                             <button class="service-more-btn bg-[#0D0DE0] border-2 border-white text-white px-6 py-2.5 rounded-md hover:bg-white hover:text-[#0D0DE0] transition-all duration-300 font-semibold text-sm md:text-base flex-shrink-0">
-                                More
+                                {{ __('More') }}
                             </button>
                         </div>
                     </div>

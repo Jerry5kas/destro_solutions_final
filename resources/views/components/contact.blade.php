@@ -18,7 +18,7 @@
             <!-- Right Side: Contact Form -->
             <div class="contact-form-wrapper order-1 lg:order-2 h-64 lg:h-full flex flex-col">
                 <h2 class="text-2xl md:text-3xl font-bold text-gray-900 mb-4">
-                    Get in touch
+                    {{ __('Get in touch') }}
                 </h2>
 
                 <form id="contact-form" class="flex-1 flex flex-col">
@@ -26,13 +26,13 @@
                         <!-- Name Field -->
                         <div>
                             <label for="contact-name" class="block text-sm font-medium text-gray-700 mb-1.5">
-                                Name
+                                {{ __('Name') }}
                             </label>
                             <input 
                                 type="text" 
                                 id="contact-name" 
                                 name="name"
-                                placeholder="Enter name"
+                                placeholder="{{ __('Enter name') }}"
                                 class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[#0D0DE0] focus:border-transparent transition-all duration-200 text-sm"
                                 required
                             />
@@ -41,13 +41,13 @@
                         <!-- Email Field -->
                         <div>
                             <label for="contact-email" class="block text-sm font-medium text-gray-700 mb-1.5">
-                                Email
+                                {{ __('Email') }}
                             </label>
                             <input 
                                 type="email" 
                                 id="contact-email" 
                                 name="email"
-                                placeholder="Enter email"
+                                placeholder="{{ __('Enter email') }}"
                                 class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[#0D0DE0] focus:border-transparent transition-all duration-200 text-sm"
                                 required
                             />
@@ -56,13 +56,13 @@
                         <!-- Mobile Field -->
                         <div>
                             <label for="contact-mobile" class="block text-sm font-medium text-gray-700 mb-1.5">
-                                Mobile
+                                {{ __('Mobile') }}
                             </label>
                             <input 
                                 type="tel" 
                                 id="contact-mobile" 
                                 name="mobile"
-                                placeholder="Enter mobile"
+                                placeholder="{{ __('Enter mobile') }}"
                                 class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[#0D0DE0] focus:border-transparent transition-all duration-200 text-sm"
                                 required
                             />
@@ -71,13 +71,13 @@
                         <!-- Message Field -->
                         <div>
                             <label for="contact-message" class="block text-sm font-medium text-gray-700 mb-1.5">
-                                Message
+                                {{ __('Message') }}
                             </label>
                             <textarea 
                                 id="contact-message" 
                                 name="message"
                                 rows="2"
-                                placeholder="Enter your message"
+                                placeholder="{{ __('Enter your message') }}"
                                 class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[#0D0DE0] focus:border-transparent transition-all duration-200 resize-none text-sm"
                                 required
                             ></textarea>
@@ -90,7 +90,7 @@
                             type="submit"
                             class="w-full bg-[#0D0DE0] text-white px-6 py-2.5 rounded-md hover:bg-[#0a0ab3] transition-colors duration-300 font-semibold text-sm md:text-base shadow-md hover:shadow-lg transform hover:scale-[1.02] active:scale-[0.98]"
                         >
-                            Request a Consultation
+                            {{ __('Request a Consultation') }}
                         </button>
                     </div>
                 </form>
