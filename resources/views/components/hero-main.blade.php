@@ -1,6 +1,6 @@
-<section class="relative h-screen w-full overflow-hidden hero-main" style="margin: 0; padding: 0; z-index: 1 !important;">
-    <!-- Background Image -->
-    <div class="absolute inset-0 z-0 bg-gray-900">
+<section class="relative h-screen w-full hero-main" style="margin: 0; padding: 0; z-index: 1 !important;">
+    <!-- Background Image - overflow handled here, not on parent -->
+    <div class="absolute inset-0 z-0 bg-gray-900" style="overflow: hidden;">
         @php
             // File paths with spaces - use rawurlencode for proper URL handling
             $imagePath = 'storage/Whisk_826247e317b1bba92ed41966e7b6783cdr (1).png';
@@ -70,6 +70,8 @@
         position: relative;
         margin: 0;
         padding: 0;
+        /* CRITICAL: Don't use overflow-hidden on parent to allow fixed navbar to work */
+        /* Overflow is handled on child elements only */
     }
 
     .hero-bg-image {

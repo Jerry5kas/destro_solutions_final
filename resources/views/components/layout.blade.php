@@ -30,6 +30,16 @@
         body { 
             font-family: 'Manrope', system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, sans-serif;
             font-weight: 300; /* Light for body text */
+            /* Add padding-top to account for fixed navbar */
+            /* Expanded: logo-bar (64px) + nav-wrap (~64px) = ~128px */
+            /* Collapsed: nav-wrap only (~64px) */
+            padding-top: var(--navbar-height, 128px); /* Default to expanded height */
+            transition: padding-top 320ms cubic-bezier(.2,.8,.2,1);
+        }
+        
+        /* Update padding when navbar collapses - only nav-wrap visible */
+        body.navbar-collapsed {
+            padding-top: var(--navbar-collapsed-height, 64px);
         }
         
         /* Logo font - Orbitron */
@@ -81,16 +91,21 @@
         /* All navigation elements must stay above everything */
         
         /* Header - Top level navigation container - BASE LAYER */
+        /* CRITICAL: Header must be FIXED for truly global behavior across all pages/components */
+        /* Fixed positioning ensures navbar works regardless of parent overflow or stacking contexts */
         header[class*="sticky"],
         header[class*="fixed"],
         #page-header,
-        #nav-header { 
+        #nav-header,
+        header.header-collapsed,
+        #page-header.header-collapsed,
+        #nav-header.header-collapsed { 
             --bar-h: 64px; 
             --nav-logo-w: 140px; 
             overflow: visible !important; 
             will-change: transform; 
             z-index: 10000 !important;
-            position: sticky !important;
+            position: fixed !important; /* Changed from sticky to fixed for global behavior */
             top: 0 !important;
             left: 0 !important;
             right: 0 !important;
@@ -100,6 +115,8 @@
             opacity: 1 !important;
             transform: none !important;
             background-color: white !important;
+            /* Ensure header is always above all content */
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
         }
         
         /* Ensure header children are visible */
@@ -143,25 +160,59 @@
         }
         
         /* Logo bar - part of navigation */
+        /* CRITICAL: Logo bar expands/collapses smoothly */
         .logo-bar { 
             height: var(--bar-h); 
+            min-height: var(--bar-h);
+            max-height: var(--bar-h);
             transition: height 320ms cubic-bezier(.2,.8,.2,1), 
+                        min-height 320ms cubic-bezier(.2,.8,.2,1),
+                        max-height 320ms cubic-bezier(.2,.8,.2,1),
                         padding 320ms cubic-bezier(.2,.8,.2,1), 
+                        padding-top 320ms cubic-bezier(.2,.8,.2,1),
+                        padding-bottom 320ms cubic-bezier(.2,.8,.2,1),
+                        margin 320ms cubic-bezier(.2,.8,.2,1),
                         border-color 320ms cubic-bezier(.2,.8,.2,1), 
-                        transform 320ms cubic-bezier(.2,.8,.2,1); 
-            will-change: height, transform;
+                        transform 320ms cubic-bezier(.2,.8,.2,1),
+                        opacity 320ms cubic-bezier(.2,.8,.2,1),
+                        visibility 320ms cubic-bezier(.2,.8,.2,1),
+                        display 320ms cubic-bezier(.2,.8,.2,1); 
+            will-change: height, opacity, transform;
             z-index: 10001 !important;
             position: relative;
+            overflow: visible !important;
+            visibility: visible !important;
+            opacity: 1 !important;
+            display: block !important;
         }
         
         /* Navigation wrapper - ensures all nav children stay on top */
+        /* CRITICAL: Nav-wrap must stay visible and properly positioned when collapsed */
         .nav-wrap { 
             transition: transform 320ms cubic-bezier(.2,.8,.2,1), 
                         box-shadow 320ms cubic-bezier(.2,.8,.2,1), 
                         border-color 320ms cubic-bezier(.2,.8,.2,1); 
             will-change: transform;
             z-index: 10002 !important;
-            position: relative;
+            position: relative !important;
+            display: block !important;
+            visibility: visible !important;
+            opacity: 1 !important;
+            /* Ensure nav-wrap has a minimum height */
+            min-height: 50px;
+        }
+        
+        /* When collapsed, nav-wrap must stay visible */
+        .header-collapsed .nav-wrap { 
+            /* Force visibility - override any conflicting styles */
+            display: block !important;
+            visibility: visible !important;
+            opacity: 1 !important;
+            position: relative !important;
+            transform: translateY(0) !important;
+            /* Ensure it maintains height */
+            height: auto !important;
+            min-height: 50px !important;
         }
         
         /* Main navigation container */
@@ -217,26 +268,91 @@
             position: relative;
         }
         
-        /* Collapsed state */
+        /* Collapsed state - Header must remain fixed */
         .header-collapsed { 
-            margin-bottom: 0; 
-        }
-        
-        .header-collapsed .logo-bar { 
-            height: 0; 
-            padding-top: 0; 
-            padding-bottom: 0; 
-            border-bottom-width: 0; 
-            transform: none; 
-            overflow: hidden; /* Only hide overflow when collapsed */
-            visibility: hidden; /* Hide but maintain layout */
-        }
-        
-        .header-collapsed .nav-wrap { 
-            transform: none; 
-            box-shadow: 0 1px 0 0 rgba(0,0,0,0.08);
-            overflow: visible !important; /* Keep nav wrap visible */
+            margin-bottom: 0;
+            /* CRITICAL: Ensure header stays fixed even when collapsed */
+            position: fixed !important;
+            top: 0 !important;
+            z-index: 10000 !important;
+            display: block !important;
             visibility: visible !important;
+            opacity: 1 !important;
+        }
+        
+        /* CRITICAL: Logo bar collapses completely - hides smoothly */
+        .header-collapsed .logo-bar { 
+            height: 0 !important; 
+            min-height: 0 !important;
+            max-height: 0 !important;
+            padding-top: 0 !important; 
+            padding-bottom: 0 !important; 
+            padding-left: 0 !important;
+            padding-right: 0 !important;
+            margin: 0 !important;
+            margin-top: 0 !important;
+            margin-bottom: 0 !important;
+            border-bottom-width: 0 !important; 
+            border-top-width: 0 !important;
+            transform: none; 
+            overflow: hidden !important; 
+            visibility: hidden !important;
+            opacity: 0 !important;
+            display: block !important; /* Keep block for smooth transition */
+            pointer-events: none !important; /* Prevent interaction */
+            /* Smooth transition - all properties */
+            transition: height 320ms cubic-bezier(.2,.8,.2,1), 
+                        min-height 320ms cubic-bezier(.2,.8,.2,1),
+                        max-height 320ms cubic-bezier(.2,.8,.2,1),
+                        padding 320ms cubic-bezier(.2,.8,.2,1),
+                        padding-top 320ms cubic-bezier(.2,.8,.2,1),
+                        padding-bottom 320ms cubic-bezier(.2,.8,.2,1),
+                        margin 320ms cubic-bezier(.2,.8,.2,1),
+                        opacity 320ms cubic-bezier(.2,.8,.2,1),
+                        visibility 320ms cubic-bezier(.2,.8,.2,1);
+        }
+        
+        /* CRITICAL: Ensure all children of logo-bar are also hidden when collapsed */
+        .header-collapsed .logo-bar > *,
+        .header-collapsed .logo-bar > div,
+        .header-collapsed .logo-bar > div > * {
+            display: none !important;
+            visibility: hidden !important;
+            opacity: 0 !important;
+            height: 0 !important;
+            min-height: 0 !important;
+            max-height: 0 !important;
+            padding: 0 !important;
+            padding-top: 0 !important;
+            padding-bottom: 0 !important;
+            margin: 0 !important;
+            pointer-events: none !important;
+        }
+        
+        /* Specifically hide the tagline span */
+        .header-collapsed .logo-bar span {
+            display: none !important;
+            visibility: hidden !important;
+            opacity: 0 !important;
+            height: 0 !important;
+            overflow: hidden !important;
+        }
+        
+        /* CRITICAL: Nav-wrap (primary nav) stays visible and fixed at top when collapsed */
+        .header-collapsed .nav-wrap { 
+            transform: translateY(0) !important; /* Move to top when logo-bar collapses */
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1) !important;
+            overflow: visible !important;
+            visibility: visible !important;
+            display: block !important;
+            opacity: 1 !important;
+            position: relative !important;
+            background-color: white !important;
+            /* Smooth transition */
+            transition: transform 320ms cubic-bezier(.2,.8,.2,1), 
+                        box-shadow 320ms cubic-bezier(.2,.8,.2,1);
+            /* Ensure it's at the very top when collapsed */
+            margin-top: 0 !important;
         }
         
         /* Ensure navbar is always visible when NOT collapsed */
@@ -527,6 +643,21 @@
         .solutions-section,
         .hero-main {
             isolation: auto !important;
+            /* CRITICAL: Don't use overflow-hidden on sections - it breaks fixed navbar */
+            /* Only apply overflow to child elements that need clipping */
+        }
+        
+        /* CRITICAL: Ensure no parent element breaks fixed positioning */
+        html, body {
+            overflow-x: hidden !important;
+            overflow-y: auto !important;
+        }
+        
+        /* Ensure sections don't interfere with fixed navbar */
+        main > section,
+        body > section {
+            position: relative;
+            /* Sections are normal flow, navbar is fixed above */
         }
         
         /* Ensure navbar wrapper doesn't get cut off */

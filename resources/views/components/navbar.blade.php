@@ -39,7 +39,7 @@
 
 @if($variant === 'complex')
   <!-- Complex Navbar (for home.blade.php) -->
-  <header id="{{ $navId }}" class="sticky top-0 w-full bg-white" style="display: block !important; visibility: visible !important; opacity: 1 !important; position: sticky !important; z-index: 10000 !important;">
+  <header id="{{ $navId }}" class="fixed top-0 w-full bg-white" style="display: block !important; visibility: visible !important; opacity: 1 !important; position: fixed !important; z-index: 10000 !important;">
     
     <div id="{{ $logoBarId }}" class="logo-bar">
       <div class="mx-auto max-w-[1280px] px-4 md:px-8 py-5 md:py-6 flex items-center justify-between gap-4">

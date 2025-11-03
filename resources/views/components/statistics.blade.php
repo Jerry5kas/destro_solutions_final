@@ -51,7 +51,10 @@
 <style>
     .statistics-section {
         position: relative;
-        overflow: hidden;
+        /* CRITICAL: Don't use overflow-hidden as it breaks fixed navbar */
+        /* Use overflow-x: hidden only if needed, but allow overflow-y */
+        overflow-x: hidden;
+        overflow-y: visible;
         z-index: 1 !important;
     }
 
