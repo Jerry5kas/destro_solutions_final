@@ -72,17 +72,12 @@
         <!-- Simple Solutions (Grid Col-3) -->
         <div class="grid grid-cols-1 md:grid-cols-2 gap-6 md:gap-8 simple-solutions-grid">
             @foreach($simpleSolutions as $index => $solution)
-                <div class="simple-solution-item rounded-3xl p-6 md:p-8 flex flex-col shadow-sm hover:shadow-md transition-shadow duration-300">
-                    <h3 class="text-xl md:text-2xl font-bold text-gray-900 mb-4 simple-title">
-                        {{ $solution['title'] }}
-                    </h3>
-                    <p class="text-base text-gray-600 leading-relaxed mb-6 flex-1 simple-description">
-                        {{ $solution['description'] }}
-                    </p>
-                    <button class="max-w-max border-2 border-[#0D0DE0] text-[#0D0DE0] px-6 py-2.5 rounded-full hover:bg-[#0D0DE0] hover:text-white transition-colors duration-300 text-sm md:text-base simple-button">
-                        Learn More
-                    </button>
-                </div>
+                <x-card-1 
+                    :title="$solution['title']"
+                    :description="$solution['description']"
+                    buttonText="Learn More"
+                    buttonLink="#"
+                />
             @endforeach
         </div>
     </div>
@@ -159,11 +154,6 @@
         }
     }
 
-    .simple-solution-item {
-        opacity: 0;
-        will-change: transform, opacity;
-        transform: translateY(30px);
-    }
 
     /* Mobile responsiveness */
     @media (max-width: 768px) {
@@ -185,7 +175,7 @@
     document.addEventListener('DOMContentLoaded', function () {
         const solutionsSection = document.querySelector('.solutions-section');
         const featuredItems = document.querySelectorAll('.featured-solution-item');
-        const simpleItems = document.querySelectorAll('.simple-solution-item');
+        const simpleItems = document.querySelectorAll('.card-1-item');
         const solutionsHeader = document.querySelector('.solutions-header');
         const solutionsTitle = document.querySelector('.solutions-title');
         const solutionsDescription = document.querySelector('.solutions-description');

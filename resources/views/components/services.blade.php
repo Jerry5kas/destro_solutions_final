@@ -199,37 +199,34 @@
 
         let currentSlide = 0;
         const totalSlides = slides.length;
-        const MAX_INDICATORS = 5; // Always show max 5 indicators
         
         function getItemsPerView() {
             return window.innerWidth >= 1024 ? 3 : (window.innerWidth >= 768 ? 2 : 1);
         }
 
+        function getIndicatorCount() {
+            const itemsPerView = getItemsPerView();
+            // Calculate how many slide positions are available
+            // Each position represents a starting point for showing items
+            const maxSlideIndex = Math.max(0, totalSlides - itemsPerView);
+            return maxSlideIndex + 1;
+        }
+
         let itemsPerView = getItemsPerView();
         let isTransitioning = false;
 
-        // Create dynamic indicators (max 5)
+        // Create dynamic indicators based on items per view
         function createIndicators() {
             indicatorsContainer.innerHTML = '';
-            const indicatorCount = Math.min(totalSlides, MAX_INDICATORS);
+            const indicatorCount = getIndicatorCount();
             
             for (let i = 0; i < indicatorCount; i++) {
                 const indicator = document.createElement('button');
                 indicator.className = 'services-indicator w-3 h-3 rounded-full transition-all duration-300 bg-white/30';
                 indicator.setAttribute('data-indicator-index', i);
-                indicator.setAttribute('aria-label', `Go to slide group ${i + 1}`);
+                indicator.setAttribute('aria-label', `Go to slide ${i + 1}`);
                 indicator.addEventListener('click', () => {
-                    // Calculate target slide based on indicator position
-                    if (totalSlides <= MAX_INDICATORS) {
-                        goToSlide(i);
-                    } else {
-                        // Distribute slides across indicators
-                        itemsPerView = getItemsPerView();
-                        const maxSlideIndex = Math.max(0, totalSlides - itemsPerView);
-                        const totalSlidePositions = maxSlideIndex + 1;
-                        const slideRangeStart = Math.floor((i / MAX_INDICATORS) * totalSlidePositions);
-                        goToSlide(slideRangeStart);
-                    }
+                    goToSlide(i);
                 });
                 indicatorsContainer.appendChild(indicator);
             }
@@ -237,54 +234,43 @@
 
         function updateIndicators() {
             const indicators = indicatorsContainer.querySelectorAll('.services-indicator');
-            if (indicators.length === 0) return;
-
-            itemsPerView = getItemsPerView();
-            const maxSlideIndex = Math.max(0, totalSlides - itemsPerView);
-            const slidePosition = currentSlide;
-
-            if (totalSlides <= MAX_INDICATORS) {
-                // Fewer or equal services than max indicators - one indicator per slide
-                indicators.forEach((indicator, index) => {
-                    const isActive = index === slidePosition;
-                    indicator.classList.toggle('active', isActive);
-                    if (isActive) {
-                        indicator.style.backgroundColor = 'white';
-                        indicator.style.width = '12px';
-                        indicator.style.height = '12px';
-                    } else {
-                        indicator.style.backgroundColor = 'rgba(255, 255, 255, 0.3)';
-                        indicator.style.width = '10px';
-                        indicator.style.height = '10px';
-                    }
-                });
-            } else {
-                // More services than max indicators - indicators represent slide positions
-                // Calculate total possible slide positions
-                const totalSlidePositions = maxSlideIndex + 1;
-                
-                // Distribute indicators across slide positions
-                // Each indicator represents a range of slides
-                indicators.forEach((indicator, indicatorIndex) => {
-                    // Calculate which slide range this indicator represents
-                    const slideRangeStart = Math.floor((indicatorIndex / MAX_INDICATORS) * totalSlidePositions);
-                    const slideRangeEnd = Math.floor(((indicatorIndex + 1) / MAX_INDICATORS) * totalSlidePositions);
-                    const isActive = slidePosition >= slideRangeStart && slidePosition < slideRangeEnd;
-                    
-                    indicator.classList.toggle('active', isActive);
-                    indicator.setAttribute('data-slide-start', slideRangeStart);
-                    
-                    if (isActive) {
-                        indicator.style.backgroundColor = 'white';
-                        indicator.style.width = '12px';
-                        indicator.style.height = '12px';
-                    } else {
-                        indicator.style.backgroundColor = 'rgba(255, 255, 255, 0.3)';
-                        indicator.style.width = '10px';
-                        indicator.style.height = '10px';
-                    }
-                });
+            if (indicators.length === 0) {
+                // Recreate indicators if count changed (e.g., on resize)
+                createIndicators();
+                const newIndicators = indicatorsContainer.querySelectorAll('.services-indicator');
+                if (newIndicators.length === 0) return;
+                updateIndicatorStyles(newIndicators);
+                return;
             }
+
+            // Check if indicator count needs to be updated
+            const expectedCount = getIndicatorCount();
+            if (indicators.length !== expectedCount) {
+                createIndicators();
+                const newIndicators = indicatorsContainer.querySelectorAll('.services-indicator');
+                updateIndicatorStyles(newIndicators);
+                return;
+            }
+
+            updateIndicatorStyles(indicators);
+        }
+
+        function updateIndicatorStyles(indicators) {
+            const slidePosition = currentSlide;
+            
+            indicators.forEach((indicator, index) => {
+                const isActive = index === slidePosition;
+                indicator.classList.toggle('active', isActive);
+                if (isActive) {
+                    indicator.style.backgroundColor = 'white';
+                    indicator.style.width = '12px';
+                    indicator.style.height = '12px';
+                } else {
+                    indicator.style.backgroundColor = 'rgba(255, 255, 255, 0.3)';
+                    indicator.style.width = '10px';
+                    indicator.style.height = '10px';
+                }
+            });
         }
 
         function updateSlider() {
@@ -382,6 +368,8 @@
                     if (currentSlide >= maxSlideIndex) {
                         currentSlide = Math.max(0, maxSlideIndex);
                     }
+                    // Recreate indicators with new count
+                    createIndicators();
                     updateSlider();
                 }
             }, 250);

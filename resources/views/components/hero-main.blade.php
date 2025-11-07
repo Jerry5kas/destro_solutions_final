@@ -2,16 +2,8 @@
     <!-- Background Image - overflow handled here, not on parent -->
     <div class="absolute inset-0 z-0 bg-gray-900" style="overflow: hidden;">
         @php
-            // File paths with spaces - use rawurlencode for proper URL handling
-            $imagePath = 'storage/Whisk_826247e317b1bba92ed41966e7b6783cdr (1).png';
-            $videoPath1 = 'storage/Whisk_826247e317b1bba92ed41966e7b6783cdr (1).mp4';
-            $videoPath2 = 'storage/Whisk_egojjwzhzjyhjto30soifmytatzlrtl0ytzl1cm.mp4';
-            
-            // Generate URLs - encode spaces properly for web URLs
-            // Laravel's asset() should handle this, but we'll encode spaces manually to be safe
-            $imageUrl = str_replace(' ', '%20', asset($imagePath));
-            $videoUrl1 = str_replace(' ', '%20', asset($videoPath1));
-            $videoUrl2 = asset($videoPath2);
+            // Use the provided default image
+            $imageUrl = asset('images/default.png');
         @endphp
         <img
             src="{{ $imageUrl }}"
@@ -20,7 +12,10 @@
             loading="eager"
             style="will-change: opacity;"
         />
-        <!-- Video on Hover -->
+        <!-- Background Video (hover to reveal) -->
+        @php
+            $videoUrl = asset('video/default-video.mp4');
+        @endphp
         <video
             class="absolute inset-0 w-full h-full object-cover hero-video"
             muted
@@ -29,8 +24,7 @@
             preload="auto"
             style="will-change: opacity;"
         >
-            <source src="{{ $videoUrl1 }}" type="video/mp4">
-            <source src="{{ $videoUrl2 }}" type="video/mp4">
+            <source src="{{ $videoUrl }}" type="video/mp4">
         </video>
     </div>
 
@@ -46,7 +40,6 @@
                     <h1 class="hero-title text-2xl sm:text-8xl font-extrabold text-white leading-tight mb-4 md:mb-6 drop-shadow-lg">
                         {{ __('Software Defined Vehicles') }}
                     </h1>
-
                     <!-- Medium Text -->
                     <p class="hero-subtitle text-xl sm:text-4xl text-white mb-8 md:mb-10 font-bold drop-shadow-md">
                         {{ __('Innovative Tomorrow') }} <span class="text-[#0D0DE0] font-bold hero-mobility">{{ __('Mobility') }}</span>
@@ -142,8 +135,8 @@
 
             // Animate title - fade in + slide up
             if (heroTitle) {
-                gsap.set(heroTitle, { 
-                    opacity: 0, 
+                gsap.set(heroTitle, {
+                    opacity: 0,
                     y: 60,
                     clipPath: 'inset(0 0 100% 0)'
                 });
@@ -158,8 +151,8 @@
 
             // Animate subtitle - fade in + slide up with stagger
             if (heroSubtitle) {
-                gsap.set(heroSubtitle, { 
-                    opacity: 0, 
+                gsap.set(heroSubtitle, {
+                    opacity: 0,
                     y: 40
                 });
                 heroTL.to(heroSubtitle, {
@@ -172,7 +165,7 @@
 
             // Animate "Mobility" word with special effect
             if (heroMobility) {
-                gsap.set(heroMobility, { 
+                gsap.set(heroMobility, {
                     opacity: 0,
                     scale: 0.8
                 });
@@ -186,8 +179,8 @@
 
             // Animate button - fade in + scale
             if (heroButton) {
-                gsap.set(heroButton, { 
-                    opacity: 0, 
+                gsap.set(heroButton, {
+                    opacity: 0,
                     scale: 0.9,
                     y: 20
                 });
@@ -208,7 +201,7 @@
                     if (currentScrollY < window.innerHeight) {
                         const scrollProgress = currentScrollY / window.innerHeight;
                         const parallaxOffset = scrollProgress * 30;
-                        
+
                         if (heroTitle) {
                             gsap.to(heroTitle, {
                                 y: parallaxOffset * 0.5,
@@ -217,7 +210,7 @@
                                 ease: 'none'
                             });
                         }
-                        
+
                         if (heroSubtitle) {
                             gsap.to(heroSubtitle, {
                                 y: parallaxOffset * 0.3,

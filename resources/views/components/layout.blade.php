@@ -38,6 +38,10 @@
             padding-top: var(--navbar-height, 128px); /* Default to expanded height */
             transition: padding-top 320ms cubic-bezier(.2,.8,.2,1);
         }
+        /* On small screens reserve only collapsed height to avoid large gap */
+        @media (max-width: 640px) {
+            body { padding-top: var(--navbar-collapsed-height, 64px); }
+        }
         
         /* Update padding when navbar collapses - only nav-wrap visible */
         body.navbar-collapsed {
@@ -739,8 +743,11 @@
     <!-- Main Content Slot -->
     {{ $slot }}
     
+
+    <x-footer/>
     <!-- Additional scripts -->
     @stack('scripts')
 </body>
+
 </html>
 

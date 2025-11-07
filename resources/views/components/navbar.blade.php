@@ -5,6 +5,8 @@
 ])
 
 @php
+    use App\Models\Category;
+    
     $navId = $prefix . '-header';
     $logoBarId = $prefix . '-logoBar';
     $logoInBarId = $prefix . '-logoInBar';
@@ -14,18 +16,28 @@
     $btnMobileId = $prefix . '-btn-mobile-top';
     $langBtnId = $prefix . '-lang-btn';
     $langDropdownId = $prefix . '-lang-dropdown';
+    $userBtnId = $prefix . '-user-btn';
+    $userDropdownId = $prefix . '-user-dropdown';
 
     // Navigation items
     $navItems = [
         ['label' => __('Home'), 'href' => '/'],
-        ['label' => __('Quantum'), 'href' => '#'],
-        ['label' => __('Services'), 'href' => '#services'],
-        ['label' => __('Products'), 'href' => '#products'],
-        ['label' => __('Training'), 'href' => '#'],
-        ['label' => __('Blog'), 'href' => '#'],
-        ['label' => __('Contact Us'), 'href' => '#contact'],
+        ['label' => __('Quantum'), 'href' => route('quantum')],
+        ['label' => __('Services'), 'href' => route('services')],
+        ['label' => __('Products'), 'href' => route('products')],
+        ['label' => __('Training'), 'href' => route('training')],
+        ['label' => __('Blog'), 'href' => route('blog')],
+        ['label' => __('Contact Us'), 'href' => route('contact')],
     ];
 
+    // Get categories for mega menus
+    $quantumCategories = Category::getByContentType('quantum');
+    $servicesCategories = Category::getByContentType('services');
+    $productsCategories = Category::getByContentType('products');
+    $trainingCategories = Category::getByContentType('training');
+@endphp
+
+@php
     // For simple variant, use different items
     $simpleNavItems = [
         ['label' => 'Home', 'href' => '#home'],
@@ -42,16 +54,16 @@
   <header id="{{ $navId }}" class="fixed top-0 w-full bg-white" style="display: block !important; visibility: visible !important; opacity: 1 !important; position: fixed !important; z-index: 10000 !important;">
     
     <div id="{{ $logoBarId }}" class="logo-bar">
-      <div class="mx-auto max-w-[1280px] px-4 md:px-8 py-3 sm:py-4 md:py-5 lg:py-6 flex items-center justify-between gap-2 sm:gap-4">
+      <div class="mx-auto max-w-[1280px] px-4 md:px-8 py-2 sm:py-3 md:py-5 lg:py-6 flex items-center justify-between gap-2 sm:gap-4">
         <div id="{{ $logoInBarId }}" class="flex items-center">
           <div class="flex flex-col leading-tight">
-            <span class="text-xl sm:text-2xl md:text-3xl lg:text-4xl text-[#0D0DE0] tracking-tight passero-one-regular">Destrsolutions</span>
+            <span class="text-lg sm:text-2xl md:text-3xl lg:text-4xl text-[#0D0DE0] tracking-tight passero-one-regular">Destrsolutions</span>
             <span class="hidden md:block text-xs font-bold text-gray-500">{{ __('Bringing SDV to Life') }}</span>
           </div>
         </div>
         <div class="flex items-center gap-4 text-gray-700">
-          <button id="{{ $btnMobileId }}" class="sm:hidden p-2 -mr-2" aria-label="Open menu" aria-expanded="false">
-            <svg class="w-6 h-6 text-gray-800" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
+          <button id="{{ $btnMobileId }}" class="sm:hidden p-1.5 -mr-1" aria-label="Open menu" aria-expanded="false">
+            <svg class="w-5 h-5 text-gray-800" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
           </button>
         </div>
       </div>
@@ -59,7 +71,7 @@
     <!-- Primary nav -->
     <div class="nav-wrap bg-white border-transparent w-full">
       <nav id="{{ $mainNavId }}">
-        <div class="mx-auto max-w-[1280px] px-4 md:px-8 relative flex items-center w-full">
+        <div class="mx-auto max-w-[1280px] px-4 md:px-8 relative flex items-center w-full py-2 sm:py-3 md:py-0">
           <!-- Logo Image - Only visible in collapsed mode, positioned absolutely -->
           <!-- Logo Text - Only visible in collapsed mode -->
           <div id="{{ $prefix }}-d-logo" class="nav-d-logo select-none">
@@ -68,8 +80,21 @@
 
           <ul class="nav-list hidden sm:flex items-center gap-8 overflow-x-auto text-gray-600 flex-1">
             @foreach($navItems as $index => $item)
-            <li class="nav-item">
-              <a class="nav-link hover:text-[#0D0DE0] whitespace-nowrap relative text-sm font-semibold" href="{{ $item['href'] }}">
+            @php 
+              $label = strtolower($item['label']);
+              $megaKeys = [strtolower(__('Quantum')), strtolower(__('Services')), strtolower(__('Products')), strtolower(__('Training'))];
+              $isMega = in_array($label, $megaKeys, true);
+              // Map label to content type for mega menu
+              $megaTypeMap = [
+                strtolower(__('Quantum')) => 'quantum',
+                strtolower(__('Services')) => 'services',
+                strtolower(__('Products')) => 'products',
+                strtolower(__('Training')) => 'training',
+              ];
+              $megaType = $isMega ? ($megaTypeMap[$label] ?? $label) : null;
+            @endphp
+            <li class="nav-item" @if($isMega) data-mega="{{ $megaType }}" @endif>
+              <a class="nav-link hover:text-[#0D0DE0] whitespace-nowrap relative text-sm font-semibold" href="{{ $item['href'] }}" @if($isMega) data-mega-trigger="{{ $megaType }}" @endif>
                 {{ $item['label'] }}
                 <span class="nav-link-underline"></span>
               </a>
@@ -94,6 +119,43 @@
                 </a>
               </div>
             </div>
+            <!-- User button with dropdown -->
+            <div class="relative">
+              <button id="{{ $userBtnId }}" class="nav-icon-btn p-2 text-gray-700 hover:text-gray-900 transition-transform duration-200 hover:scale-110" aria-label="User" aria-expanded="false">
+                <svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg>
+              </button>
+              <div id="{{ $userDropdownId }}" class="nav-dropdown absolute right-0 mt-2 w-40 bg-white rounded-lg shadow-lg border border-gray-200 hidden overflow-hidden" style="z-index: 10100;">
+                @auth
+                  @php
+                    $firstName = explode(' ', Auth::user()->name)[0];
+                  @endphp
+                  <div class="px-4 py-2 border-b border-gray-200">
+                    <p class="text-sm font-semibold text-gray-900">{{ $firstName }}</p>
+                    <p class="text-xs text-gray-500 truncate">{{ Auth::user()->email }}</p>
+                  </div>
+                  <a href="{{ route('user.dashboard') }}" class="block px-4 py-2 text-sm text-gray-700 hover:bg-[#0D0DE0] hover:text-white">
+                    {{ __('Dashboard') }}
+                  </a>
+                  <a href="{{ route('user.profile.edit') }}" class="block px-4 py-2 text-sm text-gray-700 hover:bg-[#0D0DE0] hover:text-white">
+                    {{ __('Profile') }}
+                  </a>
+                  <div class="border-t border-gray-200"></div>
+                  <form method="POST" action="{{ route('logout') }}" class="block">
+                    @csrf
+                    <button type="submit" class="w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-[#0D0DE0] hover:text-white">
+                      {{ __('Sign Out') }}
+                    </button>
+                  </form>
+                @else
+                  <a href="{{ route('login') }}" class="block px-4 py-2 text-sm text-gray-700 hover:bg-[#0D0DE0] hover:text-white">
+                    {{ __('Sign In') }}
+                  </a>
+                  <a href="{{ route('register') }}" class="block px-4 py-2 text-sm text-gray-700 hover:bg-[#0D0DE0] hover:text-white">
+                    {{ __('Sign Up') }}
+                  </a>
+                @endauth
+              </div>
+            </div>
           </div>
         </div>
       </nav>
@@ -108,10 +170,95 @@
       </div>
       <ul class="px-4 pb-4 space-y-3 text-[#0D0DE0]">
         @foreach($navItems as $item)
-        <li><a class="block py-2 text-sm font-semibold" href="{{ $item['href'] }}">{{ $item['label'] }}</a></li>
+        @php 
+          $label = strtolower($item['label']);
+          $megaKeys = [strtolower(__('Quantum')), strtolower(__('Services')), strtolower(__('Products')), strtolower(__('Training'))];
+          $isMega = in_array($label, $megaKeys, true);
+          // Map label to content type for mega menu
+          $megaTypeMap = [
+            strtolower(__('Quantum')) => 'quantum',
+            strtolower(__('Services')) => 'services',
+            strtolower(__('Products')) => 'products',
+            strtolower(__('Training')) => 'training',
+          ];
+          $megaType = $isMega ? ($megaTypeMap[$label] ?? $label) : null;
+        @endphp
+        <li>
+          <a class="block py-2 text-sm font-semibold" href="{{ $item['href'] }}" @if($isMega) data-mega-trigger="{{ $megaType }}" @endif>{{ $item['label'] }}</a>
+        </li>
         @endforeach
       </ul>
+      <!-- Mobile User Menu -->
+      <div class="px-4 py-3 border-t border-gray-200">
+        @auth
+          @php
+            $firstName = explode(' ', Auth::user()->name)[0];
+          @endphp
+          <div class="mb-3">
+            <p class="text-sm font-semibold text-gray-900">{{ $firstName }}</p>
+            <p class="text-xs text-gray-500 truncate">{{ Auth::user()->email }}</p>
+          </div>
+          <a href="{{ route('user.dashboard') }}" class="block py-2 text-sm font-semibold text-[#0D0DE0]">{{ __('Dashboard') }}</a>
+          <a href="{{ route('user.profile.edit') }}" class="block py-2 text-sm font-semibold text-[#0D0DE0]">{{ __('Profile') }}</a>
+          <form method="POST" action="{{ route('logout') }}" class="mt-2">
+            @csrf
+            <button type="submit" class="block py-2 text-sm font-semibold text-[#0D0DE0]">{{ __('Sign Out') }}</button>
+          </form>
+        @else
+          <a href="{{ route('login') }}" class="block py-2 text-sm font-semibold text-[#0D0DE0]">{{ __('Sign In') }}</a>
+          <a href="{{ route('register') }}" class="block py-2 text-sm font-semibold text-[#0D0DE0]">{{ __('Sign Up') }}</a>
+        @endauth
+      </div>
     </div>
+    <!-- Desktop Mega Menus -->
+    <x-nav-mega id="nav-mega-quantum" :categories="$quantumCategories" content-type="quantum">
+      <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6 w-full">
+        @forelse($quantumCategories as $category)
+          <a href="{{ route('quantum', ['category' => $category->slug]) }}" class="block p-4 rounded-md border border-gray-100 hover:border-[#0D0DE0]/30">
+            <div class="text-sm font-semibold text-gray-900">{{ $category->title }}</div>
+            <div class="text-xs text-gray-500 mt-1">Explore {{ $category->title }}</div>
+          </a>
+        @empty
+          <div class="col-span-full text-center text-gray-500 py-4">No categories available</div>
+        @endforelse
+      </div>
+    </x-nav-mega>
+    <x-nav-mega id="nav-mega-services" :categories="$servicesCategories" content-type="services">
+      <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6 w-full">
+        @forelse($servicesCategories as $category)
+          <a href="{{ route('services', ['category' => $category->slug]) }}" class="block p-4 rounded-md border border-gray-100 hover:border-[#0D0DE0]/30">
+            <div class="text-sm font-semibold text-gray-900">{{ $category->title }}</div>
+            <div class="text-xs text-gray-500 mt-1">Explore {{ $category->title }}</div>
+          </a>
+        @empty
+          <div class="col-span-full text-center text-gray-500 py-4">No categories available</div>
+        @endforelse
+      </div>
+    </x-nav-mega>
+    <x-nav-mega id="nav-mega-products" :categories="$productsCategories" content-type="products">
+      <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6 w-full">
+        @forelse($productsCategories as $category)
+          <a href="{{ route('products', ['category' => $category->slug]) }}" class="block p-4 rounded-md border border-gray-100 hover:border-[#0D0DE0]/30">
+            <div class="text-sm font-semibold text-gray-900">{{ $category->title }}</div>
+            <div class="text-xs text-gray-500 mt-1">Explore {{ $category->title }}</div>
+          </a>
+        @empty
+          <div class="col-span-full text-center text-gray-500 py-4">No categories available</div>
+        @endforelse
+      </div>
+    </x-nav-mega>
+    <x-nav-mega id="nav-mega-training" :categories="$trainingCategories" content-type="training">
+      <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6 w-full">
+        @forelse($trainingCategories as $category)
+          <a href="{{ route('training', ['category' => $category->slug]) }}" class="block p-4 rounded-md border border-gray-100 hover:border-[#0D0DE0]/30">
+            <div class="text-sm font-semibold text-gray-900">{{ $category->title }}</div>
+            <div class="text-xs text-gray-500 mt-1">Explore {{ $category->title }}</div>
+          </a>
+        @empty
+          <div class="col-span-full text-center text-gray-500 py-4">No categories available</div>
+        @endforelse
+      </div>
+    </x-nav-mega>
   </header>
 
   @push('scripts')
@@ -122,6 +269,8 @@
       const mobileMenu = document.getElementById(prefix + '-mobileMenu');
       const langBtn = document.getElementById(prefix + '-lang-btn');
       const langDropdown = document.getElementById(prefix + '-lang-dropdown');
+      const userBtn = document.getElementById(prefix + '-user-btn');
+      const userDropdown = document.getElementById(prefix + '-user-dropdown');
 
       // Mobile menu toggle with animation
       if (btnMobile && mobileMenu) {
@@ -186,6 +335,20 @@
                 }
               });
             } else {
+              // Close user dropdown if open
+              if (userDropdown && !userDropdown.classList.contains('hidden')) {
+                gsap.to(userDropdown, {
+                  opacity: 0,
+                  y: -10,
+                  scale: 0.95,
+                  duration: 0.2,
+                  ease: 'power2.in',
+                  onComplete: () => {
+                    userDropdown.classList.add('hidden');
+                    userBtn.setAttribute('aria-expanded', 'false');
+                  }
+                });
+              }
               // Open dropdown
               langDropdown.classList.remove('hidden');
               gsap.fromTo(langDropdown, {
@@ -230,6 +393,84 @@
         });
       }
 
+      // User dropdown toggle with animation
+      if (userBtn && userDropdown) {
+        userBtn.addEventListener('click', (e) => {
+          e.preventDefault();
+          const open = !userDropdown.classList.contains('hidden');
+
+          if (typeof gsap !== 'undefined') {
+            if (open) {
+              // Close dropdown
+              gsap.to(userDropdown, {
+                opacity: 0,
+                y: -10,
+                scale: 0.95,
+                duration: 0.2,
+                ease: 'power2.in',
+                onComplete: () => {
+                  userDropdown.classList.add('hidden');
+                }
+              });
+            } else {
+              // Close language dropdown if open
+              if (!langDropdown.classList.contains('hidden')) {
+                gsap.to(langDropdown, {
+                  opacity: 0,
+                  y: -10,
+                  scale: 0.95,
+                  duration: 0.2,
+                  ease: 'power2.in',
+                  onComplete: () => {
+                    langDropdown.classList.add('hidden');
+                    langBtn.setAttribute('aria-expanded', 'false');
+                  }
+                });
+              }
+              // Open dropdown
+              userDropdown.classList.remove('hidden');
+              gsap.fromTo(userDropdown, {
+                opacity: 0,
+                y: -10,
+                scale: 0.95
+              }, {
+                opacity: 1,
+                y: 0,
+                scale: 1,
+                duration: 0.3,
+                ease: 'back.out(1.2)'
+              });
+            }
+          } else {
+            userDropdown.classList.toggle('hidden');
+          }
+
+          userBtn.setAttribute('aria-expanded', String(!open));
+        });
+
+        document.addEventListener('click', (e) => {
+          if (!userDropdown.contains(e.target) && !userBtn.contains(e.target)) {
+            if (!userDropdown.classList.contains('hidden')) {
+              if (typeof gsap !== 'undefined') {
+                gsap.to(userDropdown, {
+                  opacity: 0,
+                  y: -10,
+                  scale: 0.95,
+                  duration: 0.2,
+                  ease: 'power2.in',
+                  onComplete: () => {
+                    userDropdown.classList.add('hidden');
+                  }
+                });
+              } else {
+                userDropdown.classList.add('hidden');
+              }
+              userBtn.setAttribute('aria-expanded', 'false');
+            }
+          }
+        });
+      }
+
       // GSAP animations for nav items on load
       if (typeof gsap !== 'undefined') {
         const navItems = document.querySelectorAll('#' + prefix + '-mainNav .nav-item');
@@ -247,6 +488,249 @@
           });
         }
       }
+    })();
+
+    // Navbar collapse/expand functionality - available on all pages
+    (function () {
+      'use strict';
+
+      // Wait for DOM to be fully ready
+      if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', initCollapse);
+      } else {
+        initCollapse();
+      }
+
+      function initCollapse() {
+        const prefix = '{{ $prefix }}';
+        const headerEl = document.getElementById(prefix + '-header');
+        if (!headerEl) {
+          console.error('[Navbar] Header element #' + prefix + '-header not found!');
+          return;
+        }
+
+        let isCollapsed = false;
+        let lockState = false;
+        let lockTimer = null;
+
+        const COLLAPSE_AT = 80;
+        const EXPAND_AT = 30;
+        const LOCK_DURATION = 300;
+
+        const getScrollY = function () {
+          const windowScrollY = window.scrollY !== undefined ? window.scrollY : (window.pageYOffset !== undefined ? window.pageYOffset : 0);
+          const docScrollTop = document.documentElement.scrollTop || 0;
+          const bodyScrollTop = document.body.scrollTop || 0;
+          return Math.max(windowScrollY, docScrollTop, bodyScrollTop);
+        };
+
+        function updateNavbarHeights() {
+          const logoBar = headerEl.querySelector('.logo-bar');
+          const navWrap = headerEl.querySelector('.nav-wrap');
+          if (!(logoBar && navWrap)) return;
+          void logoBar.offsetHeight; void navWrap.offsetHeight; // force reflow
+          const logoBarHeight = logoBar.offsetHeight || 0;
+          const navWrapHeight = navWrap.offsetHeight || 0;
+          const expandedHeight = logoBarHeight + navWrapHeight;
+          const collapsedHeight = navWrapHeight || 64;
+          document.documentElement.style.setProperty('--navbar-height', expandedHeight + 'px');
+          document.documentElement.style.setProperty('--navbar-collapsed-height', collapsedHeight + 'px');
+        }
+
+        function collapseNavbar() {
+          if (lockTimer) clearTimeout(lockTimer);
+          headerEl.classList.add('header-collapsed');
+          document.body.classList.add('navbar-collapsed');
+          isCollapsed = true;
+          lockState = true;
+          lockTimer = setTimeout(() => { lockState = false; lockTimer = null; }, LOCK_DURATION);
+        }
+
+        function expandNavbar() {
+          if (lockTimer) clearTimeout(lockTimer);
+          headerEl.classList.remove('header-collapsed');
+          document.body.classList.remove('navbar-collapsed');
+          isCollapsed = false;
+          lockState = true;
+          lockTimer = setTimeout(() => { lockState = false; lockTimer = null; }, LOCK_DURATION);
+        }
+
+        function applyHeaderState() {
+          const y = getScrollY();
+          const isMobile = window.innerWidth < 640;
+          if (isMobile) {
+            if (isCollapsed) expandNavbar();
+            return;
+          }
+          if (lockState) return;
+          if (!isCollapsed && y > COLLAPSE_AT) {
+            collapseNavbar();
+            return;
+          }
+          if (isCollapsed && y < EXPAND_AT) {
+            expandNavbar();
+            return;
+          }
+        }
+
+        // Initialize
+        headerEl.classList.remove('header-collapsed');
+        document.body.classList.remove('navbar-collapsed');
+        isCollapsed = false;
+        updateNavbarHeights();
+
+        const rafScroll = () => { window.requestAnimationFrame(applyHeaderState); };
+        // Listen on all potential scroll containers (matches home page robustness)
+        window.addEventListener('scroll', rafScroll, { passive: true });
+        document.addEventListener('scroll', rafScroll, { passive: true });
+        document.documentElement.addEventListener('scroll', rafScroll, { passive: true });
+        const bodyEl = document.body;
+        if (bodyEl) {
+          bodyEl.addEventListener('scroll', rafScroll, { passive: true });
+        }
+        window.addEventListener('resize', () => {
+          updateNavbarHeights();
+          applyHeaderState();
+        }, { passive: true });
+
+        if (document.fonts && document.fonts.ready) {
+          document.fonts.ready.then(() => {
+            updateNavbarHeights();
+            applyHeaderState();
+          });
+        }
+
+        // Initial check after a short delay (to allow layout to settle)
+        setTimeout(() => {
+          updateNavbarHeights();
+          applyHeaderState();
+          // Safety: re-apply shortly after in case of late layout shifts
+          setTimeout(() => {
+            updateNavbarHeights();
+            applyHeaderState();
+          }, 200);
+        }, 120);
+      }
+    })();
+
+    // Mega Menu interactions (desktop hover / mobile side-drawer)
+    (function() {
+      const prefix = '{{ $prefix }}';
+      const headerEl = document.getElementById(prefix + '-header');
+      const mobileMenu = document.getElementById(prefix + '-mobileMenu');
+      const btnMobile = document.getElementById(prefix + '-btn-mobile-top');
+      if (!headerEl) return;
+
+      const panels = {
+        quantum: document.getElementById('nav-mega-quantum'),
+        services: document.getElementById('nav-mega-services'),
+        products: document.getElementById('nav-mega-products'),
+        training: document.getElementById('nav-mega-training')
+      };
+      const triggers = document.querySelectorAll('a[data-mega-trigger]');
+      let activeKey = null;
+      let hideTimer = null;
+
+      function isDesktop() { return window.innerWidth >= 1024; }
+      function bodyNoScroll(enable) {
+        if (enable) document.body.style.overflow = 'hidden'; else document.body.style.overflow = '';
+      }
+      function positionPanel(panel) {
+        const rect = headerEl.getBoundingClientRect();
+        const scrollY = window.scrollY || window.pageYOffset || document.documentElement.scrollTop || 0;
+        panel.style.top = (rect.bottom + scrollY) + 'px';
+      }
+      function showPanel(key) {
+        clearHide();
+        Object.entries(panels).forEach(([k,p]) => {
+          if (!p) return;
+          if (k === key) {
+            if (isDesktop()) {
+              positionPanel(p);
+              p.classList.remove('hidden','open');
+            } else {
+              // Position below header and open as side panel
+              positionPanel(p);
+              p.classList.add('open');
+              p.classList.remove('hidden');
+              bodyNoScroll(true);
+              // Hide mobile menu so mega panel is visible
+              if (mobileMenu && !mobileMenu.classList.contains('hidden')) {
+                mobileMenu.classList.add('hidden');
+                if (btnMobile) btnMobile.setAttribute('aria-expanded', 'false');
+              }
+            }
+          } else {
+            p.classList.add('hidden');
+            p.classList.remove('open');
+          }
+        });
+        activeKey = key;
+      }
+      function scheduleHide() {
+        clearHide();
+        hideTimer = setTimeout(() => {
+          const p = activeKey ? panels[activeKey] : null;
+          if (!p) return;
+          p.classList.add('hidden');
+          p.classList.remove('open');
+          bodyNoScroll(false);
+          activeKey = null;
+        }, 160);
+      }
+      function clearHide() { if (hideTimer) { clearTimeout(hideTimer); hideTimer = null; } }
+
+      // Bind triggers
+      triggers.forEach(t => {
+        const key = t.getAttribute('data-mega-trigger');
+        // Hover (desktop) and pointer hover (mobile devices with pointers) both open
+        t.addEventListener('mouseenter', () => { if (isDesktop()) showPanel(key); });
+        t.addEventListener('pointerenter', () => { if (!activeKey) showPanel(key); });
+        t.parentElement.addEventListener('mouseleave', () => { if (isDesktop()) scheduleHide(); });
+        // Mobile tap opens (prevents navigation)
+        t.addEventListener('click', (e) => {
+          if (!isDesktop()) { e.preventDefault(); showPanel(key); }
+        });
+        // Touch start also opens immediately
+        t.addEventListener('touchstart', (e) => { if (!isDesktop()) { e.preventDefault(); showPanel(key); } }, { passive: false });
+      });
+
+      // Keep open when focusing panel; hide when leaving
+      Object.values(panels).forEach(p => {
+        if (!p) return;
+        p.addEventListener('mouseenter', () => { if (isDesktop()) clearHide(); });
+        p.addEventListener('mouseleave', () => { if (isDesktop()) scheduleHide(); });
+        // Mobile close via button
+        const closeBtn = p.querySelector('[data-mega-close]');
+        if (closeBtn) {
+          closeBtn.addEventListener('click', (e) => {
+            e.preventDefault();
+            p.classList.add('hidden');
+            p.classList.remove('open');
+            bodyNoScroll(false);
+            activeKey = null;
+          });
+        }
+      });
+
+      window.addEventListener('scroll', () => {
+        if (isDesktop() && activeKey) positionPanel(panels[activeKey]);
+      }, { passive: true });
+      window.addEventListener('resize', () => {
+        if (!isDesktop()) { // close on resize to mobile
+          if (activeKey) { panels[activeKey].classList.add('open'); bodyNoScroll(true); }
+        } else {
+          bodyNoScroll(false);
+          if (activeKey) positionPanel(panels[activeKey]);
+        }
+      }, { passive: true });
+
+      // ESC to close
+      document.addEventListener('keydown', (e) => {
+        if (e.key === 'Escape' && activeKey) {
+          scheduleHide();
+        }
+      });
     })();
   </script>
   @endpush

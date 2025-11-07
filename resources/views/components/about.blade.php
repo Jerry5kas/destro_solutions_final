@@ -47,24 +47,25 @@
             <div class="about-slider-wrapper relative flex flex-col h-full">
                 <div class="about-slider-container relative flex-1 rounded-lg overflow-hidden shadow-lg">
                     @foreach($slides as $index => $slide)
-                        <div class="about-slide absolute inset-0 {{ $index === 0 ? 'active' : '' }}" data-slide-index="{{ $index }}">
+                        <div class="about-slide absolute inset-0 {{ $index === 0 ? 'active' : '' }}" data-slide-index="{{ $index }}" id="slide-{{ $index }}">
                             <img 
-                                src="{{ asset($slide['image']) }}" 
+                                src="{{ str_starts_with($slide['image'], 'http') ? $slide['image'] : asset($slide['image']) }}" 
                                 alt="{{ $slide['title'] }}"
+                                id="slide-image-{{ $index }}"
                                 class="w-full h-full object-cover transition-transform duration-700"
                             />
                             <!-- Gradient Overlay - Always Visible -->
-                            <div class="about-overlay absolute inset-0 bg-gradient-to-t from-blue-900/80 via-blue-900/50 to-transparent pointer-events-none">
-                                <div class="absolute bottom-0 left-0 right-0 p-6 md:p-8 pb-16 text-white">
-                                    <h3 class="text-xl md:text-2xl font-bold mb-2">{{ $slide['title'] }}</h3>
-                                    <p class="text-sm md:text-base leading-relaxed opacity-90">{{ $slide['description'] }}</p>
-                                </div>
+                            <!-- <div class="about-overlay absolute inset-0 bg-gradient-to-t from-blue-900/80 via-blue-900/50 to-transparent pointer-events-none z-10"></div> -->
+                             
+                            <div class="absolute bottom-0 left-0 right-0 p-6 md:p-8 pb-16 text-white z-20 bg-gradient-to-t from-blue-900/80 via-blue-900/50 to-transparent">
+                                <h3 class="text-xl md:text-2xl font-bold mb-2 drop-shadow-lg">{{ $slide['title'] }}</h3>
+                                <p class="text-sm md:text-base leading-relaxed opacity-95 drop-shadow-md">{{ $slide['description'] }}</p>
                             </div>
                         </div>
                     @endforeach
                     
                     <!-- Slider Indicators - Inside the image container, positioned at bottom -->
-                    <div class="about-indicators absolute bottom-4 left-1/2 transform -translate-x-1/2 flex justify-center gap-2 z-10 pointer-events-auto">
+                    <div class="about-indicators absolute bottom-4 left-1/2 transform -translate-x-1/2 flex justify-center gap-2 z-30 pointer-events-auto">
                         @foreach($slides as $index => $slide)
                             <button 
                                 class="about-indicator w-2 h-2 rounded-full transition-all duration-300 {{ $index === 0 ? 'active' : 'bg-white/50' }}"
@@ -133,13 +134,24 @@
     }
 
     .about-overlay {
-        opacity: 1;
-        transition: opacity 0.3s ease;
+        opacity: 1 !important;
+        z-index: 10;
+        background: linear-gradient(to top, 
+            rgba(0, 0, 0, 0.85) 0%, 
+            rgba(0, 0, 0, 0.75) 30%, 
+            rgba(0, 0, 0, 0.5) 60%, 
+            rgba(0, 0, 0, 0.2) 100%
+        );
+        transition: background 0.3s ease;
     }
 
     .about-slide:hover .about-overlay {
-        opacity: 1;
-        background: linear-gradient(to top, rgba(0, 0, 0, 0.9), rgba(0, 0, 0, 0.6), transparent);
+        background: linear-gradient(to top, 
+            rgba(0, 0, 0, 0.9) 0%, 
+            rgba(0, 0, 0, 0.8) 30%, 
+            rgba(0, 0, 0, 0.6) 60%, 
+            rgba(0, 0, 0, 0.3) 100%
+        );
     }
 
     .about-slide:hover img {
@@ -147,7 +159,12 @@
     }
     
     .about-slide:not(:hover) .about-overlay {
-        background: linear-gradient(to top, rgba(0, 0, 0, 0.8), rgba(0, 0, 0, 0.5), transparent);
+        background: linear-gradient(to top, 
+            rgba(0, 0, 0, 0.85) 0%, 
+            rgba(0, 0, 0, 0.75) 30%, 
+            rgba(0, 0, 0, 0.5) 60%, 
+            rgba(0, 0, 0, 0.2) 100%
+        );
     }
 
     .about-indicator {
@@ -334,22 +351,21 @@
         // Function to go to a specific slide
         function goToSlide(index) {
             if (index < 0 || index >= slides.length) return;
+            
+            // Don't do anything if already on this slide
+            if (currentSlide === index) return;
 
-            // Remove active class from current slide and indicator
-            if (slides[currentSlide]) {
-                slides[currentSlide].classList.remove('active');
-            }
-            if (indicators[currentSlide]) {
-                indicators[currentSlide].classList.remove('active');
-            }
+            const prevSlideIndex = currentSlide;
+            const prevSlide = slides[prevSlideIndex];
+            const nextSlide = slides[index];
 
+            // Update current slide index
             currentSlide = index;
 
             // Add active class to new slide and indicator
             if (typeof gsap !== 'undefined') {
                 // Animate previous slide out
-                const prevSlide = Array.from(slides).find(slide => slide.classList.contains('active'));
-                if (prevSlide && prevSlide !== slides[currentSlide]) {
+                if (prevSlide && prevSlide !== nextSlide) {
                     gsap.to(prevSlide, {
                         opacity: 0,
                         x: -100,
@@ -362,7 +378,7 @@
                 }
 
                 // Animate new slide in
-                gsap.fromTo(slides[currentSlide], {
+                gsap.fromTo(nextSlide, {
                     opacity: 0,
                     x: 100
                 }, {
@@ -371,16 +387,23 @@
                     duration: 0.6,
                     ease: 'power2.inOut',
                     onStart: () => {
-                        slides[currentSlide].classList.add('active');
+                        nextSlide.classList.add('active');
                     }
                 });
             } else {
                 // Fallback CSS transition
                 slides.forEach(slide => slide.classList.remove('active'));
-                slides[currentSlide].classList.add('active');
+                nextSlide.classList.add('active');
             }
 
-            indicators[currentSlide].classList.add('active');
+            // Update indicators
+            indicators.forEach((indicator, idx) => {
+                if (idx === index) {
+                    indicator.classList.add('active');
+                } else {
+                    indicator.classList.remove('active');
+                }
+            });
 
             // Reset auto-slide timer
             resetAutoSlide();
