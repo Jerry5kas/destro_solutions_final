@@ -1,12 +1,12 @@
 <!-- Slides Loop -->
 <div class="w-full" data-reveal-scope data-reveal>
     <div
-        class="w-full h-full flex items-center justify-center relative border-b border-gray-300"
+        class="w-full h-full flex items-center justify-center relative border-b border-t border-blue-300"
     >
         <!-- White overlay -->
         {{--        <div class="absolute inset-0 bg-white/75 backdrop-blur-[1px] z-0"></div>--}}
         <!-- Grid lines - Hidden on mobile, visible on md+ -->
-        <div class="absolute inset-0 z-10 hidden md:flex border-l border-r border-gray-300">
+        <div class="absolute inset-0 z-10 hidden md:flex border-l border-gray-300">
             <div class="basis-[10%] border-r border-blue-300"></div>
             <div class="basis-[25%] border-r border-blue-300"></div>
             <div class="basis-[30%] border-r border-blue-300"></div>
@@ -44,7 +44,7 @@
                         <div class="w-full lg:w-3/4 flex flex-col sm:flex-row justify-center lg:justify-evenly items-center gap-4 xs:gap-6 sm:gap-8">
                             <!-- Loop through team members -->
                             @foreach($teamMembers as $index => $member)
-                                <div class="inset-0 z-20 w-48 xs:w-52 sm:w-56 md:w-60 lg:w-64 h-60 xs:h-64 sm:h-68 md:h-72 bg-white flex flex-row justify-start relative group overflow-hidden rounded-sm" data-reveal :class="'reveal-delay-' + Math.min($index, 7)">
+                                <div class="inset-0 z-20 w-48 xs:w-52 sm:w-56 md:w-60 lg:w-64 h-60 xs:h-64 sm:h-68 md:h-72 bg-white flex flex-row justify-start relative group overflow-hidden rounded-sm" data-team-card data-reveal :class="'reveal-delay-' + Math.min($index, 7)">
                                     <div class="flex flex-col gap-y-1 xs:gap-y-2 relative w-full h-full">
                                         <!-- Image -->
                                         <img
@@ -108,3 +108,55 @@
 
     </div>
 </div>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        const section = document.querySelector('[data-reveal-scope]');
+        if (!section) return;
+
+        const teamCards = section.querySelectorAll('[data-team-card]');
+        if (!teamCards.length) return;
+
+        let animated = false;
+
+        function animateCards() {
+            if (animated) return;
+            animated = true;
+
+            if (typeof window.gsap !== 'undefined') {
+                gsap.from(teamCards, {
+                    opacity: 0,
+                    y: 36,
+                    duration: 0.7,
+                    ease: 'power2.out',
+                    stagger: 0.18
+                });
+            } else {
+                teamCards.forEach((card, index) => {
+                    card.style.opacity = '0';
+                    card.style.transform = 'translateY(24px)';
+                    requestAnimationFrame(() => {
+                        setTimeout(() => {
+                            card.style.transition = 'opacity 0.6s ease-out, transform 0.6s ease-out';
+                            card.style.opacity = '1';
+                            card.style.transform = 'translateY(0)';
+                        }, index * 120);
+                    });
+                });
+            }
+        }
+
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    animateCards();
+                    observer.unobserve(entry.target);
+                }
+            });
+        }, {
+            threshold: 0.25
+        });
+
+        observer.observe(section);
+    });
+</script>

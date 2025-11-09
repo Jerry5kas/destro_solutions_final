@@ -3,7 +3,7 @@
     <div class="absolute inset-0 z-0 bg-gray-900" style="overflow: hidden;">
         @php
             // Use the provided default image
-            $imageUrl = asset('images/default.png');
+            $imageUrl = asset('images/main.png');
         @endphp
         <img
             src="{{ $imageUrl }}"

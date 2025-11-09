@@ -56,9 +56,22 @@
     <div id="{{ $logoBarId }}" class="logo-bar">
       <div class="mx-auto max-w-[1280px] px-4 md:px-8 py-2 sm:py-3 md:py-5 lg:py-6 flex items-center justify-between gap-2 sm:gap-4">
         <div id="{{ $logoInBarId }}" class="flex items-center">
-          <div class="flex flex-col leading-tight">
-            <span class="text-lg sm:text-2xl md:text-3xl lg:text-4xl text-[#0D0DE0] tracking-tight passero-one-regular">Destrsolutions</span>
-            <span class="hidden md:block text-xs font-bold text-gray-500">{{ __('Bringing SDV to Life') }}</span>
+          <div class="relative flex items-center justify-center md:justify-start pb-6">
+            <div class="flex flex-row items-center gap-4">
+            <img
+              src="{{ asset('images/Logo-nav.png') }}"
+              alt="{{ __('Destro Solutions mark') }}"
+              class="h-6 w-auto"
+              loading="lazy"
+            />
+            <img
+              src="{{ asset('images/Logo-text.png') }}"
+              alt="{{ __('Destro Solutions logo') }}"
+              class="h-6  w-auto"
+              loading="lazy"
+            />
+            </div>
+            <span class="absolute top-8 left-1/2 md:left-0 -translate-x-1/2 md:translate-x-0 text-[14px] font-semibold text-gray-500 whitespace-nowrap">{{ __('Bringing SDV to Life') }}</span>
           </div>
         </div>
         <div class="flex items-center gap-4 text-gray-700">
@@ -75,9 +88,13 @@
           <!-- Logo Image - Only visible in collapsed mode, positioned absolutely -->
           <!-- Logo Text - Only visible in collapsed mode -->
           <div id="{{ $prefix }}-d-logo" class="nav-d-logo select-none">
-            <span class="text-xl sm:text-2xl md:text-3xl text-[#0D0DE0] passero-one-regular">DS</span>
+            <img
+              src="{{ asset('images/Logo-nav.png') }}"
+              alt="{{ __('Destro Solutions mark') }}"
+              class="h-6 sm:h-8 w-auto"
+              loading="lazy"
+            />
           </div>
-
           <ul class="nav-list hidden sm:flex items-center gap-8 overflow-x-auto text-gray-600 flex-1">
             @foreach($navItems as $index => $item)
             @php 
@@ -94,7 +111,7 @@
               $megaType = $isMega ? ($megaTypeMap[$label] ?? $label) : null;
             @endphp
             <li class="nav-item" @if($isMega) data-mega="{{ $megaType }}" @endif>
-              <a class="nav-link hover:text-[#0D0DE0] whitespace-nowrap relative text-sm font-semibold" href="{{ $item['href'] }}" @if($isMega) data-mega-trigger="{{ $megaType }}" @endif>
+              <a class="nav-link hover:text-[#0D0DE0] whitespace-nowrap relative text-base font-semibold" href="{{ $item['href'] }}" @if($isMega) data-mega-trigger="{{ $megaType }}" @endif>
                 {{ $item['label'] }}
                 <span class="nav-link-underline"></span>
               </a>
@@ -162,6 +179,22 @@
     </div>
     <!-- Mobile menu -->
     <div id="{{ $mobileMenuId }}" class="md:hidden border-t border-gray-200 bg-white hidden overflow-hidden">
+      <div class="px-4 pt-4 pb-3 flex flex-col items-center justify-between gap-3 border-b border-gray-200">
+        <div class="flex items-center gap-3">
+          <img
+            src="{{ asset('images/Logo-nav.png') }}"
+            alt="{{ __('Destro Solutions mark') }}"
+            class="h-6 w-auto"
+            loading="lazy"
+          />
+          <img
+            src="{{ asset('images/Logo-text.png') }}"
+            alt="{{ __('Destro Solutions logo') }}"
+            class="h-8 w-auto"
+            loading="lazy"
+          />
+        </div>
+      </div>
       <div class="px-4 py-3 flex items-center gap-3">
         <input class="flex-1 bg-transparent border-b border-gray-300 focus:border-[#0D0DE0] outline-none text-sm py-1 placeholder:text-gray-400" placeholder="{{ __('Search') }}"/>
         <button class="p-2 text-gray-700" aria-label="Language">
@@ -184,7 +217,7 @@
           $megaType = $isMega ? ($megaTypeMap[$label] ?? $label) : null;
         @endphp
         <li>
-          <a class="block py-2 text-sm font-semibold" href="{{ $item['href'] }}" @if($isMega) data-mega-trigger="{{ $megaType }}" @endif>{{ $item['label'] }}</a>
+          <a class="block py-2 text-base font-semibold" href="{{ $item['href'] }}" @if($isMega) data-mega-trigger="{{ $megaType }}" @endif>{{ $item['label'] }}</a>
         </li>
         @endforeach
       </ul>

@@ -5,9 +5,25 @@
             <!-- Logo & Contact Info -->
             <div class="footer-brand">
                 <div class="mb-5">
-                    <h2 class="text-3xl md:text-4xl text-[#0D0DE0] tracking-tight passero-one-regular">
-                        DestroSolutions
-                    </h2>
+                    <div class="flex flex-col items-start gap-1">
+                    <div class="flex flex-row items-center gap-4">
+            <img
+              src="{{ asset('images/Logo-nav.png') }}"
+              alt="{{ __('Destro Solutions mark') }}"
+              class="h-6 w-auto"
+              loading="lazy"
+            />
+                        <img
+                            src="{{ asset('images/Logo-text.png') }}"
+                            alt="{{ __('Destro Solutions logo') }}"
+                            class="h-6 w-auto"
+                            loading="lazy"
+                        />
+                        </div>
+                        <span class="text-[14px] font-semibold text-gray-500 leading-tight">
+                            {{ __('Bringing SDV to Life') }}
+                        </span>
+                    </div>
                 </div>
                 <div class="space-y-3 text-sm text-gray-600">
                     <a href="mailto:info@destrosolutions.com" class="flex items-center gap-2 hover:text-[#0D0DE0] transition-colors duration-200">

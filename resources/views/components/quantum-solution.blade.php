@@ -13,7 +13,7 @@
     $fallbackQuantumImage = asset('images/quantum.jpeg');
 @endphp
 
-<section class="relative w-full py-12 bg-white solutions-section" id="solutions">
+<section class="relative w-full pb-24 pt-12 bg-white solutions-section" id="solutions">
     <div class="mx-auto max-w-[1280px] px-4 md:px-8 w-full">
         @if($categories->count() > 0)
             <div class="mb-10">
@@ -83,7 +83,7 @@
         </div>
 
         <!-- Simple Solutions (Grid Col-3) -->
-        <div class="grid grid-cols-1 md:grid-cols-3 gap-8 md:gap-12 simple-solutions-grid">
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-x-8 md:gap-x-12 gap-y-12 md:gap-y-16 simple-solutions-grid">
             @forelse($simpleSolutions as $solution)
                 <x-card-1 
                     :title="$solution->title"
@@ -141,12 +141,6 @@
         height: 100%;
         min-height: 150px;
         max-height: 260px;
-        box-shadow: 0 8px 16px -4px rgba(0, 0, 0, 0.15), 0 4px 8px -2px rgba(0, 0, 0, 0.1);
-        transition: box-shadow 0.3s ease;
-    }
-
-    .featured-image-container:hover {
-        box-shadow: 0 12px 24px -4px rgba(0, 0, 0, 0.2), 0 6px 12px -2px rgba(0, 0, 0, 0.15);
     }
 
     @media (min-width: 768px) {
@@ -172,7 +166,6 @@
             display: flex;
         }
     }
-
 
     /* Mobile responsiveness */
     @media (max-width: 768px) {

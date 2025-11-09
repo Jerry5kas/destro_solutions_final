@@ -66,14 +66,14 @@
                 <div class="training-cards-container" id="trainingCardsContainer">
                     @foreach($trainings as $index => $training)
                         <!-- Training Card -->
-                        <div class="training-card-item" data-index="{{ $index }}" data-type="training" style="display: {{ $index < 9 ? 'block' : 'none' }};">
+                        <div class="training-card-item" data-index="{{ $index }}" data-type="training" style="display: {{ $index < 7 ? 'block' : 'none' }};">
                             <div class="training-card-wrapper">
                                 <!-- Full Height Image -->
                                 <div class="training-card-image">
                                     <img 
                                         src="{{ $training['image'] }}" 
                                         alt="{{ $training['title'] }}"
-                                        loading="{{ $index < 9 ? 'eager' : 'lazy' }}"
+                                        loading="{{ $index < 7 ? 'eager' : 'lazy' }}"
                                     />
                                     @if($training['category'])
                                         <div class="training-card-badge">
@@ -124,7 +124,7 @@
                     @endforeach
 
                     <!-- See More Card (10th card) -->
-                    @if(count($trainings) > 9)
+                    @if(count($trainings) > 7)
                         <div class="training-card-item see-more-card" data-type="see-more" id="seeMoreCard" style="display: block;">
                             <button type="button" class="see-more-card-button w-full h-full">
                                 <div class="training-card-content see-more-content">
@@ -478,8 +478,8 @@
             const container = document.getElementById('trainingCardsContainer');
             const trainingCards = container.querySelectorAll('.training-card-item[data-type="training"]');
             const totalTrainings = {{ count($trainings) }};
-            const cardsPerPage = 9; // Show 9 training cards + 1 See More card = 10 total
-            let shownCount = 9; // Initially showing first 9 training cards
+            const cardsPerPage = 7; // Show 7 training cards + 1 See More card = 8 total
+            let shownCount = 7; // Initially showing first 7 training cards
 
             if (!seeMoreCard || trainingCards.length === 0) return;
 

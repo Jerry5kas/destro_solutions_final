@@ -24,7 +24,7 @@
     ];
 @endphp
 
-<section class="relative w-full py-12 bg-white solutions-section" id="solutions">
+<section class="relative w-full py-24 bg-white solutions-section" id="solutions">
     <div class="mx-auto max-w-[1280px] px-4 md:px-8 w-full">
         
         <!-- Section Header -->

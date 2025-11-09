@@ -6,6 +6,8 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>{{ $title }}</title>
+    <link rel="icon" type="image/png" href="{{ asset('images/favi.png') }}" sizes="32x32">
+    <link rel="shortcut icon" href="{{ asset('images/favi.png') }}">
     
     <!-- Google Fonts Preconnect -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -435,7 +437,7 @@
         /* Letter D Logo - Only visible in collapsed mode, positioned absolutely OUTSIDE flex flow */
         .nav-d-logo {
             position: absolute;
-            left: -20px; /* px-4 = 16px, aligns with container padding */
+            left: -28px; /* nudged left for improved alignment */
             top: 50%;
             transform: translateY(-50%) translateX(-8px);
             opacity: 0;

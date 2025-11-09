@@ -23,7 +23,7 @@
     ];
 @endphp
 
-<section class="relative w-full py-12 md:py-16 lg:py-20 bg-white about-section" id="about">
+<section class="relative w-full py-12 sm:py-24 bg-white about-section" id="about">
     <div class="mx-auto max-w-[1280px] px-4 md:px-8 w-full">
         <div class="grid grid-cols-1 lg:grid-cols-2 gap-8 lg:gap-12 items-stretch">
             

@@ -6,7 +6,7 @@
         imagePath="images/quantum.jpeg"/>
    
     <!-- Quantum Intro Section -->
-    <section class="relative w-full py-12 md:py-16 lg:py-20 bg-white" style="z-index: 1;">
+    <section class="relative w-full py-12 sm:py-24 bg-white" style="z-index: 1;">
         <div class="mx-auto max-w-[1280px] px-4 md:px-8 w-full">
             <div class="grid grid-cols-1 lg:grid-cols-[minmax(0,_0.9fr)_minmax(0,_1fr)] gap-10 lg:gap-16 items-start">
                 <div class="space-y-6 quantum-intro-lead">
@@ -36,5 +36,7 @@
         :categories="$categories"
         :selectedCategory="$selectedCategory"
     />
+
+    <x-team />
 
 </x-layout>

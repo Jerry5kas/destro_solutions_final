@@ -1,5 +1,7 @@
+@props(['productsData' => null])
+
 @php
-    $products = [
+    $defaultProducts = [
         [
             'title' => 'Automator AI',
             'description' => 'Automator lets OEMs use automation policies to instantly create new vehicle functions',
@@ -31,14 +33,18 @@
             'image' => 'https://images.unsplash.com/photo-1485827404703-89b55fcc595e?w=600&h=400&fit=crop&auto=format'
         ]
     ];
+
+    $products = collect($productsData ?? $defaultProducts)
+        ->take(6)
+        ->values();
 @endphp
 
-<section class="relative w-full py-12 bg-gray-50 products-section" id="products">
+<section class="relative w-full py-24 bg-gray-50 products-section" id="products">
     <div class="mx-auto max-w-[1280px] px-4 md:px-8 w-full">
         
         <!-- Section Header -->
         <div class="text-center mb-12 md:mb-16 products-header">
-            <h2 class="text-3xl md:text-4xl lg:text-5xl font-bold mb-4 products-title">
+            <h2 class="text-3xl md:text-4xl lg:text-5xl font-bold products-title">
                 Products
             </h2>
             <p class="text-base md:text-lg text-gray-600 max-w-6xl mx-auto leading-relaxed products-description">
@@ -47,7 +53,7 @@
         </div>
 
         <!-- Products Grid -->
-        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 md:gap-8 products-grid">
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 products-grid">
             @foreach($products as $index => $product)
                 <div class="product-card bg-white overflow-hidden shadow-md hover:shadow-xl transition-shadow duration-300 flex flex-col product-item" data-index="{{ $index }}">
                     <!-- Product Image -->
@@ -63,10 +69,10 @@
 
                     <!-- Product Content -->
                     <div class="p-6 flex flex-col flex-1">
-                        <h3 class="text-xl md:text-2xl font-bold text-gray-900 mb-3 product-title">
+                        <h3 class="text-xl md:text-2xl font-bold text-gray-900 mb-4 product-title">
                             {{ $product['title'] }}
                         </h3>
-                        <p class="text-sm md:text-base text-gray-600 leading-relaxed mb-4 flex-1 product-description">
+                        <p class="text-sm text-gray-600 leading-relaxed mb-4 flex-1 product-description">
                             {{ $product['description'] }}
                         </p>
                         
@@ -87,6 +93,11 @@
     }
 
     .products-header {
+        display: flex;
+        flex-direction: column;
+        gap: clamp(1.75rem, 4vw, 2.75rem);
+        align-items: center;
+        text-align: center;
         will-change: transform, opacity;
     }
 
@@ -118,10 +129,16 @@
         border-radius: 3rem;
     }
 
+    .products-grid {
+        row-gap: clamp(3.25rem, 5vw, 4.5rem);
+        column-gap: clamp(1.75rem, 3vw, 2.5rem);
+    }
+
     /* Mobile responsiveness */
     @media (max-width: 768px) {
         .products-grid {
-            gap: 1.5rem;
+            row-gap: clamp(2.5rem, 8vw, 3.25rem);
+            column-gap: 1.5rem;
         }
         
         .product-card {

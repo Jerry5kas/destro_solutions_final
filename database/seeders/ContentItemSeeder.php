@@ -731,6 +731,11 @@ class ContentItemSeeder extends Seeder
             ],
         ];
 
+        $contentData['blog'] = array_merge(
+            $contentData['blog'],
+            $this->generateAdditionalBlogs(28, Carbon::parse('2025-05-01'))
+        );
+
         // Load all categories into a map for faster lookup
         $categoriesMap = Category::pluck('id', 'title')->toArray();
         $missingCategories = [];
@@ -780,6 +785,9 @@ class ContentItemSeeder extends Seeder
                 
                 // Generate unique slug
                 $baseSlug = \Illuminate\Support\Str::slug($item['title']);
+                if ($type === 'blog' && !empty($item['date'])) {
+                    $baseSlug = Carbon::parse($item['date'])->format('Y-m-d') . '-' . $baseSlug;
+                }
                 $slug = $baseSlug;
                 $counter = 1;
                 while (ContentItem::where('slug', $slug)->exists()) {
@@ -827,5 +835,84 @@ class ContentItemSeeder extends Seeder
         // Report category assignment statistics
         $itemsWithCategories = ContentItem::whereNotNull('category_id')->count();
         $this->command->info("Items with categories assigned: {$itemsWithCategories} / {$totalItems}");
+    }
+
+    /**
+     * Generate additional blog content items to extend seed data.
+     */
+    private function generateAdditionalBlogs(int $count, Carbon $startDate): array
+    {
+        $topics = [
+            'AI Safety Validation',
+            'Zero Trust Architectures',
+            'SDV Program Governance',
+            'Edge Analytics Pipelines',
+            'Mobility Platform Security',
+            'Cloud-Native Vehicle Ops',
+            'Digital Twin Readiness',
+            'Vehicle Data Monetization',
+            'Resilient OTA Rollouts',
+            'Functional Safety Playbooks',
+            'Cross-Domain Orchestration',
+            'Electronics Supply Assurance',
+            'Fleet Incident Response',
+            'Human-Centric HMI Design',
+            'Predictive Maintenance AI',
+            'Vehicle Compliance Automation',
+            'Software Lifecycle Metrics',
+            'Embedded DevSecOps Practices',
+            'Third-Party Component Audits',
+            'High-Integrity Sensor Fusion',
+            'Battery Analytics Strategy',
+            'Sustainable SDV Engineering',
+            'Advanced Diagnostics Tooling',
+            'Data Residency Management'
+        ];
+
+        $categories = [
+            'Technology',
+            'Security',
+            'Process',
+            'Cloud',
+            'Testing',
+            'Compliance',
+            'Architecture',
+            'Platform',
+            'Research',
+            'Development'
+        ];
+
+        $statuses = ['active', 'waiting'];
+
+        $entries = [];
+        $date = $startDate->copy();
+
+        for ($i = 0; $i < $count; $i++) {
+            $topic = $topics[$i % count($topics)];
+            $titleIndex = $i + 13; // continue sequence after existing 12 posts
+            $title = sprintf('Mobility Insight %02d: %s', $titleIndex, $topic);
+            $category = $categories[$i % count($categories)];
+            $status = $statuses[$i % count($statuses)];
+
+            $entries[] = [
+                'title' => $title,
+                'description' => sprintf(
+                    'Insights on %s, including practical guidance for automotive software leaders.',
+                    strtolower($topic)
+                ),
+                'category' => $category,
+                'date' => $date->format('Y-m-d'),
+                'objective_list' => [
+                    sprintf('Understand %s trends', strtolower($topic)),
+                    sprintf('Evaluate enablers for %s', strtolower($topic)),
+                    'Prepare implementation roadmap'
+                ],
+                'status' => $status,
+            ];
+
+            $date = $date->copy()->addDays(3);
+        }
+
+        return $entries;
     }
 }

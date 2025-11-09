@@ -153,7 +153,14 @@ class PageController extends Controller
      */
     public function blog()
     {
-        return view('blog');
+        $blogs = ContentItem::with(['category:id,title'])
+            ->where('type', 'blog')
+            ->where('status', 'active')
+            ->orderByDesc('date')
+            ->orderByDesc('created_at')
+            ->get();
+
+        return view('blog', compact('blogs'));
     }
 
     /**
