@@ -5,6 +5,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="csrf-token" content="{{ csrf_token() }}">
     <title>{{ $title }}</title>
     <link rel="icon" type="image/png" href="{{ asset('images/favi.png') }}" sizes="32x32">
     <link rel="shortcut icon" href="{{ asset('images/favi.png') }}">
@@ -65,6 +66,13 @@
             font-weight: 400 !important;
             font-style: normal !important;
             font-optical-sizing: auto;
+        }
+
+        .logo-bar .nav-tagline {
+            font-family: "Montserrat", sans-serif !important;
+            font-optical-sizing: auto;
+            font-weight: 600 !important;
+            font-style: normal !important;
         }
         
         /* All headings - Montserrat Medium 500 */
@@ -234,6 +242,12 @@
             min-height: 44px;
         }
         
+        @media (max-width: 640px) {
+            .mobile-nav-hidden {
+                display: none !important;
+            }
+        }
+
         /* Reduce mobile navbar spacing */
         @media (max-width: 640px) {
             .logo-bar > div {
@@ -437,9 +451,9 @@
         /* Letter D Logo - Only visible in collapsed mode, positioned absolutely OUTSIDE flex flow */
         .nav-d-logo {
             position: absolute;
-            left: -28px; /* nudged left for improved alignment */
+            left: -4px; /* nudged right for alignment with menu items */
             top: 50%;
-            transform: translateY(-50%) translateX(-8px);
+            transform: translateY(-50%);
             opacity: 0;
             pointer-events: none;
             transition: opacity 320ms cubic-bezier(.2,.8,.2,1),
@@ -451,9 +465,15 @@
             /* Remove from flex flow - doesn't affect nav-list positioning */
         }
         
+        @media (max-width: 640px) {
+            .nav-d-logo {
+                display: none !important;
+            }
+        }
+
         .header-collapsed .nav-d-logo {
             opacity: 1;
-            transform: translateY(-50%) translateX(0);
+            transform: translateY(-50%);
             pointer-events: auto;
         }
         

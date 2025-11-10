@@ -4,7 +4,11 @@ namespace App\Services\Payment;
 
 use App\Models\Payment as PaymentModel;
 use App\Models\Enrollment;
+use App\Models\PaymentSetting;
+use App\Support\Money;
 use Illuminate\Support\Facades\DB;
+use App\Support\AdminNotifier;
+use App\Notifications\Admin\PaymentStatusNotification;
 
 class PaymentHelper
 {
@@ -21,13 +25,15 @@ class PaymentHelper
      */
     public static function createPaymentRecord(array $data): PaymentModel
     {
+        $defaultCurrency = PaymentSetting::current()->currency ?? config('payment.currency.default', 'INR');
+
         return PaymentModel::create([
             'user_id' => $data['user_id'],
             'enrollment_id' => $data['enrollment_id'] ?? null,
             'gateway' => $data['gateway'],
             'gateway_payment_id' => $data['gateway_payment_id'],
             'amount' => $data['amount'],
-            'currency' => $data['currency'] ?? 'USD',
+            'currency' => strtoupper($data['currency'] ?? $defaultCurrency),
             'status' => $data['status'] ?? 'pending',
             'payment_method' => $data['payment_method'] ?? null,
             'metadata' => $data['metadata'] ?? [],
@@ -74,6 +80,8 @@ class PaymentHelper
                 }
             }
 
+            AdminNotifier::notify(new PaymentStatusNotification($payment->fresh(), 'Succeeded', 'Payment captured successfully.'));
+
             return true;
         });
     }
@@ -99,6 +107,9 @@ class PaymentHelper
                 }
             }
 
+            $note = $reason ? sprintf('Reason: %s', $reason) : null;
+            AdminNotifier::notify(new PaymentStatusNotification($payment->fresh(), 'Failed', $note));
+
             return true;
         });
     }
@@ -106,18 +117,9 @@ class PaymentHelper
     /**
      * Format amount for display
      */
-    public static function formatAmount(float $amount, string $currency = 'USD'): string
+    public static function formatAmount(float $amount, string $currency = 'INR'): string
     {
-        $symbols = [
-            'USD' => '$',
-            'EUR' => '€',
-            'GBP' => '£',
-            'INR' => '₹',
-        ];
-
-        $symbol = $symbols[$currency] ?? $currency . ' ';
-        
-        return $symbol . number_format($amount, 2);
+        return Money::format($amount, $currency);
     }
 }
 

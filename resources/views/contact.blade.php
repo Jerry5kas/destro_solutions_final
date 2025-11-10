@@ -4,6 +4,10 @@
         :title="__('Contact us')" 
         :description="__('Get in touch for consultations, partnerships, and opportunities.')"
         imagePath="images/contact.jpeg"/>
+
+    <main class="bg-white">
+        <x-contact/>
+    </main>
 </x-layout>
 
 

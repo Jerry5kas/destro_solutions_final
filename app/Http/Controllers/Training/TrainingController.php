@@ -10,7 +10,8 @@ class TrainingController extends Controller
 {
     public function index()
     {
-        $trainings = ContentItem::where('type', 'training')
+        $trainings = ContentItem::with('currencyModel')
+            ->where('type', 'training')
             ->where('status', 'active')
             ->where('is_enrollable', true)
             ->orderBy('start_date')
@@ -21,7 +22,7 @@ class TrainingController extends Controller
 
     public function show(string $slug)
     {
-        $training = ContentItem::with(['category', 'enrollments'])
+        $training = ContentItem::with(['category', 'enrollments', 'currencyModel'])
             ->where('type', 'training')
             ->where('slug', $slug)
             ->where('status', 'active')

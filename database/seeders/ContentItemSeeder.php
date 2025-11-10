@@ -4,6 +4,7 @@ namespace Database\Seeders;
 
 use App\Models\ContentItem;
 use App\Models\Category;
+use App\Models\Currency;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Carbon;
 
@@ -742,6 +743,8 @@ class ContentItemSeeder extends Seeder
         
         // Verify all categories exist before processing
         $this->command->info('Verifying categories...');
+        $defaultCurrencyCode = Currency::defaultCurrency()->code ?? 'INR';
+
         foreach ($contentData as $type => $items) {
             foreach ($items as $item) {
                 if (!empty($item['category']) && !isset($categoriesMap[$item['category']])) {
@@ -814,7 +817,9 @@ class ContentItemSeeder extends Seeder
                 if ($type === 'training') {
                     $itemData['is_enrollable'] = $item['status'] === 'active';
                     $itemData['price'] = $item['price'] ?? rand(500, 2000);
-                    $itemData['currency'] = $item['currency'] ?? 'USD';
+                    $assignedCurrency = strtoupper($item['currency_code'] ?? $item['currency'] ?? $defaultCurrencyCode);
+                    $itemData['currency_code'] = $assignedCurrency;
+                    $itemData['currency'] = $assignedCurrency;
                     $itemData['duration_days'] = $item['duration_days'] ?? rand(3, 10);
                     $itemData['start_date'] = Carbon::parse($item['date'])->addDays(rand(30, 90));
                     $itemData['max_students'] = $item['max_students'] ?? rand(20, 50);

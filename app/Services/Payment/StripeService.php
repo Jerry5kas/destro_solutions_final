@@ -3,6 +3,7 @@
 namespace App\Services\Payment;
 
 use App\Models\PaymentSetting;
+use App\Support\Money;
 use Stripe\Stripe;
 use Stripe\PaymentIntent;
 use Stripe\Refund;
@@ -32,10 +33,11 @@ class StripeService implements PaymentGatewayInterface
     public function createPayment(float $amount, string $currency, array $metadata = []): array
     {
         try {
-            $amountInCents = (int)($amount * 100); // Convert to cents
+            $factor = $this->minorUnitFactor($currency);
+            $amountInMinor = (int) round($amount * $factor);
 
             $paymentIntent = PaymentIntent::create([
-                'amount' => $amountInCents,
+                'amount' => $amountInMinor,
                 'currency' => strtolower($currency),
                 'metadata' => $metadata,
                 'automatic_payment_methods' => [
@@ -73,7 +75,7 @@ class StripeService implements PaymentGatewayInterface
                 'success' => true,
                 'payment_id' => $paymentIntent->id,
                 'status' => $paymentIntent->status,
-                'amount' => $paymentIntent->amount / 100, // Convert from cents
+                'amount' => $paymentIntent->amount / $this->minorUnitFactor($paymentIntent->currency),
                 'currency' => strtoupper($paymentIntent->currency),
                 'payment_method' => $paymentIntent->payment_method_types[0] ?? 'card',
                 'metadata' => $paymentIntent->metadata->toArray(),
@@ -96,12 +98,14 @@ class StripeService implements PaymentGatewayInterface
     public function refundPayment(string $paymentId, ?float $amount = null): array
     {
         try {
+            $paymentIntent = PaymentIntent::retrieve($paymentId);
+
             $params = [
                 'payment_intent' => $paymentId,
             ];
 
             if ($amount !== null) {
-                $params['amount'] = (int)($amount * 100); // Convert to cents
+                $params['amount'] = (int) round($amount * $this->minorUnitFactor($paymentIntent->currency));
             }
 
             $refund = Refund::create($params);
@@ -109,7 +113,7 @@ class StripeService implements PaymentGatewayInterface
             return [
                 'success' => true,
                 'refund_id' => $refund->id,
-                'amount' => $refund->amount / 100, // Convert from cents
+                'amount' => $refund->amount / $this->minorUnitFactor($refund->currency),
                 'status' => $refund->status,
                 'data' => $refund->toArray(),
             ];
@@ -130,6 +134,16 @@ class StripeService implements PaymentGatewayInterface
     public function getPaymentStatus(string $paymentId): array
     {
         return $this->verifyPayment($paymentId);
+    }
+
+    /**
+     * Resolve the smallest unit factor for the given currency.
+     */
+    protected function minorUnitFactor(string $currency): int
+    {
+        $decimals = Money::currency($currency)->decimals ?? 2;
+
+        return (int) pow(10, $decimals);
     }
 
     /**

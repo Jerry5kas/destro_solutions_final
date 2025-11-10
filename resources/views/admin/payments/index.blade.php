@@ -140,7 +140,7 @@
                     </div>
                     
                     <div style="font-weight: 600; color: #111827;">
-                        {{ $payment->currency }} {{ number_format((float)$payment->amount, 2) }}
+                        {{ \App\Support\Money::format($payment->amount, $payment->currency) }}
                     </div>
                     
                     <div>

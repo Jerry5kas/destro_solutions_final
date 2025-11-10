@@ -4,6 +4,8 @@ namespace App\Http\Controllers;
 
 use App\Models\Contact;
 use Illuminate\Http\Request;
+use App\Support\AdminNotifier;
+use App\Notifications\Admin\NewContactMessageNotification;
 
 class ContactController extends Controller
 {
@@ -19,7 +21,16 @@ class ContactController extends Controller
             'message' => 'required|string',
         ]);
 
-        Contact::create($validated);
+        $contact = Contact::create($validated);
+
+        AdminNotifier::notify(new NewContactMessageNotification($contact));
+
+        if ($request->wantsJson()) {
+            return response()->json([
+                'message' => 'Thank you for your message! We will get back to you soon.',
+                'contact' => $contact,
+            ], 201);
+        }
 
         return redirect()->route('contact')
             ->with('success', 'Thank you for your message! We will get back to you soon.');

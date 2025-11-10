@@ -33,6 +33,7 @@ class DatabaseSeeder extends Seeder
         // Seed categories first, then content items
         $this->call([
             CategorySeeder::class,
+            CurrencySeeder::class,
             ContentItemSeeder::class,
         ]);
     }

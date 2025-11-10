@@ -8,7 +8,11 @@
             @else
                 <div style="display:grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 1rem;">
                     @foreach($trainings as $training)
-                        <a href="{{ route('trainings.show', $training->slug) }}" style="text-decoration:none;">
+                        @php
+                            $currencyCode = $training->resolvedCurrencyCode();
+                            $formattedPrice = \App\Support\Money::format($training->price, $currencyCode);
+                        @endphp
+                        <a href="{{ route('training.show', $training->slug) }}" style="text-decoration:none;">
                             <div style="background:white; border:1px solid #eef2ff; border-radius:16px; overflow:hidden; box-shadow: 0 10px 30px rgba(13,13,224,0.06);">
                                 <div style="height: 160px; background:#f3f4f6;">
                                     @if($training->image)
@@ -18,7 +22,11 @@
                                 <div style="padding: 1rem;">
                                     <div style="font-weight:600; color:#111827;">{{ $training->title }}</div>
                                     <div style="color:#6b7280; font-size:.9rem; margin-top:.25rem;">{{ $training->start_date?->format('M d, Y') }} @if($training->duration_days) · {{ $training->duration_days }} days @endif</div>
-                                    <div style="margin-top:.5rem; font-weight:600; color:#0D0DE0;">{{ $training->currency }} {{ number_format((float)($training->price ?? 0), 2) }}</div>
+                                    @if(!is_null($training->price))
+                                        <div style="margin-top:.5rem; font-weight:600; color:#0D0DE0;">{{ $formattedPrice }}</div>
+                                    @else
+                                        <div style="margin-top:.5rem; font-weight:500; color:#6b7280;">{{ __('Contact for pricing') }}</div>
+                                    @endif
                                 </div>
                             </div>
                         </a>

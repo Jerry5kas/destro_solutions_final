@@ -11,9 +11,18 @@ class ContactController extends Controller
     /**
      * Display a listing of the resource.
      */
-    public function index()
+    public function index(Request $request)
     {
         $contacts = Contact::orderBy('created_at', 'desc')->get();
+
+        if ($request->wantsJson()) {
+            return response()->json([
+                'html' => view('admin.contacts.partials.rows', compact('contacts'))->render(),
+                'total' => $contacts->count(),
+                'unread' => $contacts->where('status', 'new')->count(),
+            ]);
+        }
+
         return view('admin.contacts.index', compact('contacts'));
     }
 

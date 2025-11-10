@@ -43,8 +43,8 @@ return [
     */
 
     'currency' => [
-        'default' => env('PAYMENT_CURRENCY', 'USD'),
-        'supported' => ['USD', 'EUR', 'GBP', 'INR'],
+        'default' => env('PAYMENT_CURRENCY', 'INR'),
+        'supported' => ['INR', 'GER', 'USD', 'EUR', 'YEN'],
     ],
 
     /*

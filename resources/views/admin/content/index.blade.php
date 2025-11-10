@@ -161,6 +161,24 @@
         .status-inactive .status-dot {
             background: #ef4444;
         }
+
+        .admin-label {
+            display: block;
+            font-weight: 500;
+            color: #374151;
+            margin-bottom: 0.5rem;
+            font-size: 0.875rem;
+        }
+
+        .admin-input {
+            width: 100%;
+            padding: 0.75rem;
+            border: 1px solid #e5e7eb;
+            border-radius: 8px;
+            font-family: 'Montserrat', sans-serif;
+            font-size: 0.9375rem;
+            background: white;
+        }
         
         @media (max-width: 1024px) {
             .dashboard-card > div:first-child > div,
@@ -259,6 +277,120 @@
                         <option value="inactive">Inactive</option>
                     </select>
                 </div>
+
+                @if($type === 'training')
+                <div id="trainingFields" style="margin-top: 2rem; border-top: 1px solid #e5e7eb; padding-top: 1.5rem;">
+                    <h3 style="font-size: 1rem; font-weight: 600; color: #111827; margin-bottom: 1rem;">Training Details</h3>
+                    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 1rem;">
+                        <div>
+                            <label class="admin-label">Start Date</label>
+                            <input type="date" name="start_date" id="start_date" class="admin-input">
+                        </div>
+                        <div>
+                            <label class="admin-label">End Date</label>
+                            <input type="date" name="end_date" id="end_date" class="admin-input">
+                        </div>
+                        <div>
+                            <label class="admin-label">Enrollment Deadline</label>
+                            <input type="date" name="enrollment_deadline" id="enrollment_deadline" class="admin-input">
+                        </div>
+                        <div>
+                            <label class="admin-label">Price</label>
+                            <input type="number" step="0.01" min="0" name="price" id="price" class="admin-input" placeholder="0.00">
+                        </div>
+                        <div>
+                            <label class="admin-label">Currency</label>
+                            <select name="currency_code" id="currency_code" class="admin-input">
+                                @foreach($currencies as $currency)
+                                    <option value="{{ $currency->code }}" data-default="{{ $currency->is_default ? 1 : 0 }}" {{ $currency->is_default ? 'selected' : '' }}>
+                                        {{ $currency->code }} &mdash; {{ $currency->name }}
+                                    </option>
+                                @endforeach
+                            </select>
+                        </div>
+                        <div>
+                            <label class="admin-label">Duration (days)</label>
+                            <input type="number" min="0" name="duration_days" id="duration_days" class="admin-input">
+                        </div>
+                        <div>
+                            <label class="admin-label">Duration (hours)</label>
+                            <input type="number" min="0" name="duration_hours" id="duration_hours" class="admin-input">
+                        </div>
+                        <div>
+                            <label class="admin-label">Session Count</label>
+                            <input type="number" min="0" name="session_count" id="session_count" class="admin-input">
+                        </div>
+                        <div>
+                            <label class="admin-label">Session Length (minutes)</label>
+                            <input type="number" min="0" name="session_length_minutes" id="session_length_minutes" class="admin-input">
+                        </div>
+                        <div>
+                            <label class="admin-label">Max Students</label>
+                            <input type="number" min="0" name="max_students" id="max_students" class="admin-input">
+                        </div>
+                        <div>
+                            <label class="admin-label">Delivery Mode</label>
+                            <input type="text" name="delivery_mode" id="delivery_mode" class="admin-input" placeholder="Virtual / Onsite / Hybrid">
+                        </div>
+                        <div>
+                            <label class="admin-label">Level</label>
+                            <select name="level" id="level" class="admin-input">
+                                <option value="">Select level</option>
+                                <option value="beginner">Beginner</option>
+                                <option value="intermediate">Intermediate</option>
+                                <option value="advanced">Advanced</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label class="admin-label">Language</label>
+                            <input type="text" name="language" id="language" class="admin-input" placeholder="EN, DE, ...">
+                        </div>
+                    </div>
+
+                    <div style="display: flex; flex-wrap: wrap; gap: 1rem; margin-top: 1.5rem;">
+                        <label style="display: inline-flex; align-items: center; gap: 0.5rem; font-size: 0.875rem; color: #374151;">
+                            <input type="hidden" name="is_enrollable" value="0">
+                            <input type="checkbox" name="is_enrollable" id="is_enrollable" value="1" style="width: 18px; height: 18px; accent-color: #0D0DE0;">
+                            <span>Allow enrollments</span>
+                        </label>
+                        <label style="display: inline-flex; align-items: center; gap: 0.5rem; font-size: 0.875rem; color: #374151;">
+                            <input type="hidden" name="certification_available" value="0">
+                            <input type="checkbox" name="certification_available" id="certification_available" value="1" style="width: 18px; height: 18px; accent-color: #0D0DE0;">
+                            <span>Certification provided</span>
+                        </label>
+                    </div>
+
+                    <div style="margin-top: 1.5rem;">
+                        <label class="admin-label">Prerequisites (one per line)</label>
+                        <textarea name="prerequisites" id="prerequisites" rows="3" class="admin-input" style="resize: vertical;"></textarea>
+                    </div>
+
+                    <div style="margin-top: 1rem;">
+                        <label class="admin-label">Instructor Name</label>
+                        <input type="text" name="instructor_name" id="instructor_name" class="admin-input">
+                    </div>
+
+                    <div style="margin-top: 1rem;">
+                        <label class="admin-label">Instructor Bio</label>
+                        <textarea name="instructor_bio" id="instructor_bio" rows="4" class="admin-input" style="resize: vertical;"></textarea>
+                    </div>
+
+                    <div style="margin-top: 1rem;">
+                        <label class="admin-label">Learning Outcomes (one per line)</label>
+                        <textarea name="outcomes_text" id="outcomes_text" rows="4" class="admin-input" placeholder="Participants will be able to..." style="resize: vertical;"></textarea>
+                    </div>
+
+                    <div style="margin-top: 1rem;">
+                        <label class="admin-label">Materials Provided (one per line)</label>
+                        <textarea name="materials_text" id="materials_text" rows="3" class="admin-input" placeholder="Training handbook&#10;Reference templates" style="resize: vertical;"></textarea>
+                    </div>
+
+                    <div style="margin-top: 1rem;">
+                        <label class="admin-label">Certification Details</label>
+                        <textarea name="certification_details" id="certification_details" rows="3" class="admin-input" style="resize: vertical;"></textarea>
+                    </div>
+                </div>
+                @endif
                 
                 <div style="display: flex; gap: 1rem; justify-content: flex-end; margin-top: 2rem;">
                     <button type="button" onclick="closeModal()" style="padding: 0.75rem 1.5rem; background: #f3f4f6; color: #374151; border: none; border-radius: 8px; font-weight: 500; cursor: pointer; font-family: 'Montserrat', sans-serif;">
@@ -276,6 +408,100 @@
     <script>
         let currentEditId = null;
         const itemsData = @json($items);
+        const isTraining = '{{ $type }}' === 'training';
+
+        const trainingFieldIds = [
+            'start_date',
+            'end_date',
+            'enrollment_deadline',
+            'currency_code',
+            'price',
+            'duration_days',
+            'duration_hours',
+            'session_count',
+            'session_length_minutes',
+            'max_students',
+            'delivery_mode',
+            'level',
+            'language',
+            'prerequisites',
+            'instructor_name',
+            'instructor_bio',
+            'outcomes_text',
+            'materials_text',
+            'certification_details'
+        ];
+
+        function formatDateValue(value) {
+            if (!value) return '';
+            return value.length > 10 ? value.substring(0, 10) : value;
+        }
+
+        function resetTrainingFields() {
+            if (!isTraining) return;
+            trainingFieldIds.forEach(id => {
+                const field = document.getElementById(id);
+                if (field) {
+                    field.value = '';
+                }
+            });
+            const enrollCheckbox = document.getElementById('is_enrollable');
+            if (enrollCheckbox) enrollCheckbox.checked = false;
+            const certCheckbox = document.getElementById('certification_available');
+            if (certCheckbox) certCheckbox.checked = false;
+            const currencySelect = document.getElementById('currency_code');
+            if (currencySelect) {
+                const defaultOption = currencySelect.querySelector('option[data-default="1"]');
+                currencySelect.value = defaultOption ? defaultOption.value : (currencySelect.options[0]?.value || '');
+            }
+        }
+
+        function populateTrainingFields(item) {
+            if (!isTraining || !item) return;
+
+            const setValue = (id, value) => {
+                const field = document.getElementById(id);
+                if (!field) return;
+                if (id === 'currency_code') {
+                    const fallback = field.querySelector('option[data-default="1"]')?.value || field.options[0]?.value || '';
+                    field.value = value ?? fallback;
+                    return;
+                }
+                field.value = value ?? '';
+            };
+
+            setValue('start_date', formatDateValue(item.start_date));
+            setValue('end_date', formatDateValue(item.end_date));
+            setValue('enrollment_deadline', formatDateValue(item.enrollment_deadline));
+            setValue('price', item.price);
+            setValue('currency_code', item.currency_code || item.currency);
+            setValue('duration_days', item.duration_days);
+            setValue('duration_hours', item.duration_hours);
+            setValue('session_count', item.session_count);
+            setValue('session_length_minutes', item.session_length_minutes);
+            setValue('max_students', item.max_students);
+            setValue('delivery_mode', item.delivery_mode);
+            setValue('level', item.level);
+            setValue('language', item.language);
+            setValue('prerequisites', item.prerequisites);
+            setValue('instructor_name', item.instructor_name);
+            setValue('instructor_bio', item.instructor_bio);
+
+            const outcomesField = document.getElementById('outcomes_text');
+            if (outcomesField) {
+                outcomesField.value = Array.isArray(item.outcomes) ? item.outcomes.join('\n') : '';
+            }
+            const materialsField = document.getElementById('materials_text');
+            if (materialsField) {
+                materialsField.value = Array.isArray(item.materials_provided) ? item.materials_provided.join('\n') : '';
+            }
+            setValue('certification_details', item.certification_details);
+
+            const enrollCheckbox = document.getElementById('is_enrollable');
+            if (enrollCheckbox) enrollCheckbox.checked = !!item.is_enrollable;
+            const certCheckbox = document.getElementById('certification_available');
+            if (certCheckbox) certCheckbox.checked = !!item.certification_available;
+        }
         
         function openCreateModal() {
             currentEditId = null;
@@ -284,6 +510,7 @@
             document.getElementById('formMethod').innerHTML = '';
             document.getElementById('contentForm').reset();
             document.getElementById('imagePreview').innerHTML = '';
+            resetTrainingFields();
             document.getElementById('contentModal').style.display = 'flex';
         }
         
@@ -307,6 +534,10 @@
                 document.getElementById('objective_list_text').value = item.objective_list.join('\n');
             } else {
                 document.getElementById('objective_list_text').value = '';
+            }
+
+            if (isTraining) {
+                populateTrainingFields(item);
             }
             
             if (item.image_url) {
@@ -341,6 +572,10 @@
                 reader.readAsDataURL(file);
             }
         });
+
+        if (isTraining) {
+            resetTrainingFields();
+        }
     </script>
     @endpush
 </x-admin-layout>

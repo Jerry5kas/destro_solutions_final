@@ -109,13 +109,20 @@
             </div>
             <div>
                 <label style="display:block; font-weight:600; color:#374151; margin-bottom:.5rem;">Currency</label>
-                <select name="currency" style="width: 100%; max-width: 320px; padding:.8rem 1rem; border:1px solid #e5e7eb; border-radius:10px;">
-                    @php $curr = $settings->currency ?? config('payment.currency.default','USD'); @endphp
-                    <option value="USD" {{ $curr==='USD'?'selected':'' }}>USD</option>
-                    <option value="EUR" {{ $curr==='EUR'?'selected':'' }}>EUR</option>
-                    <option value="GBP" {{ $curr==='GBP'?'selected':'' }}>GBP</option>
-                    <option value="INR" {{ $curr==='INR'?'selected':'' }}>INR</option>
-                </select>
+                @php $curr = strtoupper($settings->currency ?? config('payment.currency.default','INR')); @endphp
+                @if($currencies->isEmpty())
+                    <div style="padding:.75rem 1rem; border:1px solid #fee2e2; border-radius:10px; background:#fef2f2; color:#991b1b;">
+                        Please seed currencies before configuring payment currency.
+                    </div>
+                @else
+                    <select name="currency" style="width: 100%; max-width: 320px; padding:.8rem 1rem; border:1px solid #e5e7eb; border-radius:10px;">
+                        @foreach($currencies as $currency)
+                            <option value="{{ $currency->code }}" {{ $curr === $currency->code ? 'selected' : '' }}>
+                                {{ $currency->code }} — {{ $currency->name }}
+                            </option>
+                        @endforeach
+                    </select>
+                @endif
             </div>
         </div>
 

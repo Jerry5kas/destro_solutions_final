@@ -8,12 +8,18 @@
                 </div>
                 <div style="padding:1.25rem; display:grid; grid-template-columns: 2fr 1fr; gap: 1.25rem;">
                     <div>
+                        @php
+                            $currencyCode = $training->resolvedCurrencyCode();
+                            $currencyDecimals = $training->currency_decimals ?? 2;
+                            $formattedPrice = \App\Support\Money::format($training->price, $currencyCode);
+                            $gatewayAmount = (int) round(($training->price ?? 0) * (10 ** $currencyDecimals));
+                        @endphp
                         @if($gateway === 'stripe')
                             <script src="https://js.stripe.com/v3/"></script>
                             <div style="margin-bottom:1rem;">
                                 <div style="font-weight:600; color:#111827; margin-bottom:.25rem;">Stripe Payment</div>
                                 <div id="card-element" style="padding: .9rem 1rem; border:1px solid #e5e7eb; border-radius:10px;"></div>
-                                <button id="stripe-pay-btn" style="margin-top:.75rem; padding:.8rem 1rem; background:#0D0DE0; color:white; border:none; border-radius:10px; font-weight:600; cursor:pointer;">Pay {{ $training->currency }} {{ number_format((float)($training->price ?? 0), 2) }}</button>
+                                <button id="stripe-pay-btn" style="margin-top:.75rem; padding:.8rem 1rem; background:#0D0DE0; color:white; border:none; border-radius:10px; font-weight:600; cursor:pointer;">Pay {{ $formattedPrice }}</button>
                                 <div id="stripe-error" style="color:#b91c1c; margin-top:.5rem; display:none;"></div>
                             </div>
                             <script>
@@ -50,14 +56,14 @@
                             <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
                             <div style="margin-bottom:1rem;">
                                 <div style="font-weight:600; color:#111827; margin-bottom:.25rem;">Razorpay Payment</div>
-                                <button id="rzp-pay-btn" style="margin-top:.25rem; padding:.8rem 1rem; background:#0D0DE0; color:white; border:none; border-radius:10px; font-weight:600; cursor:pointer;">Pay {{ $training->currency }} {{ number_format((float)($training->price ?? 0), 2) }}</button>
+                                <button id="rzp-pay-btn" style="margin-top:.25rem; padding:.8rem 1rem; background:#0D0DE0; color:white; border:none; border-radius:10px; font-weight:600; cursor:pointer;">Pay {{ $formattedPrice }}</button>
                             </div>
                             <script>
                                 (function(){
                                     const options = {
                                         key: "{{ $init['key_id'] ?? '' }}",
-                                        amount: {{ (int) round(($training->price ?? 0) * 100) }},
-                                        currency: "{{ $training->currency }}",
+                                        amount: {{ $gatewayAmount }},
+                                        currency: "{{ $currencyCode }}",
                                         name: "Destrosolutions",
                                         description: "{{ $training->title }}",
                                         order_id: "{{ $init['order_id'] ?? '' }}",
@@ -96,7 +102,7 @@
                             <div style="font-weight:600; color:#111827;">Order Summary</div>
                             <div style="margin-top:.5rem; color:#6b7280; font-size:.95rem; display:flex; align-items:center; justify-content: space-between;">
                                 <span>{{ $training->title }}</span>
-                                <span style="font-weight:600; color:#111827;">{{ $training->currency }} {{ number_format((float)($training->price ?? 0), 2) }}</span>
+                                <span style="font-weight:600; color:#111827;">{{ $formattedPrice }}</span>
                             </div>
                             <div style="margin-top:.5rem; color:#6b7280; font-size:.95rem; display:flex; align-items:center; justify-content: space-between;">
                                 <span>Taxes</span>
@@ -104,7 +110,7 @@
                             </div>
                             <div style="margin-top:.75rem; border-top:1px dashed #e5e7eb; padding-top:.75rem; display:flex; align-items:center; justify-content: space-between;">
                                 <span style="font-weight:700; color:#111827;">Total</span>
-                                <span style="font-weight:700; color:#0D0DE0;">{{ $training->currency }} {{ number_format((float)($training->price ?? 0), 2) }}</span>
+                                <span style="font-weight:700; color:#0D0DE0;">{{ $formattedPrice }}</span>
                             </div>
                         </div>
                     </div>

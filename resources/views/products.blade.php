@@ -89,9 +89,9 @@
                                 </p>
                             @endif
                             
-                            <button type="button" class="max-w-max border-2 border-[#0D0DE0] text-[#0D0DE0] px-4 py-2 rounded-full hover:bg-[#0D0DE0] hover:text-white transition-colors duration-300 text-sm md:text-base product-button">
+                            <a href="{{ route('content.show', $product->slug) }}" class="max-w-max border-2 border-[#0D0DE0] text-[#0D0DE0] px-4 py-2 rounded-full hover:bg-[#0D0DE0] hover:text-white transition-colors duration-300 text-sm md:text-base product-button">
                                 {{ __('Know More') }}
-                            </button>
+                            </a>
                         </div>
                     </div>
                 @empty

@@ -58,9 +58,9 @@
                         <p class="text-base md:text-lg text-gray-600 leading-relaxed mb-6 featured-description line-clamp-3">
                             {{ \Illuminate\Support\Str::limit(strip_tags($solution->description ?? ''), 200) }}
                         </p>
-                        <button class="max-w-max border-2 border-[#0D0DE0] text-[#0D0DE0] px-6 py-2.5 rounded-full hover:bg-[#0D0DE0] hover:text-white transition-colors duration-300 text-sm md:text-base featured-button">
+                        <a href="{{ route('content.show', $solution->slug) }}" class="max-w-max border-2 border-[#0D0DE0] text-[#0D0DE0] px-6 py-2.5 rounded-full hover:bg-[#0D0DE0] hover:text-white transition-colors duration-300 text-sm md:text-base featured-button">
                             Learn More
-                        </button>
+                        </a>
                     </div>
 
                     <!-- Right Side: Image -->
@@ -89,7 +89,7 @@
                     :title="$solution->title"
                     :description="\Illuminate\Support\Str::limit(strip_tags($solution->description ?? ''), 180)"
                     buttonText="Learn More"
-                    :buttonLink="$solution->category ? route('quantum', ['category' => $solution->category->slug]) : route('quantum')"
+                    :buttonLink="route('content.show', $solution->slug)"
                 />
             @empty
                 @if($totalItems === 0)

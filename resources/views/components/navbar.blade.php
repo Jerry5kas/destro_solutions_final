@@ -55,43 +55,49 @@
     
     <div id="{{ $logoBarId }}" class="logo-bar">
       <div class="mx-auto max-w-[1280px] px-4 md:px-8 py-2 sm:py-3 md:py-5 lg:py-6 flex items-center justify-between gap-2 sm:gap-4">
-        <div id="{{ $logoInBarId }}" class="flex items-center">
-          <div class="relative flex items-center justify-center md:justify-start pb-6">
+        <div id="{{ $logoInBarId }}" class="flex flex-col items-center sm:flex-row sm:items-center">
+          <div class="relative flex items-center justify-center md:justify-start pb-1 sm:pb-6">
             <div class="flex flex-row items-center gap-4">
-            <img
+            <!-- <img
               src="{{ asset('images/Logo-nav.png') }}"
               alt="{{ __('Destro Solutions mark') }}"
               class="h-6 w-auto"
               loading="lazy"
-            />
+            /> -->
             <img
               src="{{ asset('images/Logo-text.png') }}"
               alt="{{ __('Destro Solutions logo') }}"
-              class="h-6  w-auto"
+              class="h-6 w-auto"
               loading="lazy"
             />
             </div>
-            <span class="absolute top-8 left-1/2 md:left-0 -translate-x-1/2 md:translate-x-0 text-[14px] font-semibold text-gray-500 whitespace-nowrap">{{ __('Bringing SDV to Life') }}</span>
+            <span class="absolute top-7 sm:top-8 left-1/2 md:left-0 -translate-x-1/2 md:translate-x-0 text-[10px] sm:text-[14px] text-gray-500 whitespace-nowrap font-sans font-semibold nav-tagline sm:inline">{{ __('Bringing SDV to Life') }}</span>
           </div>
+          <!-- <span class="mt-1 sm:mt-0 text-xs text-gray-500 font-sans font-semibold sm:hidden">{{ __('Bringing SDV to Life') }}</span> -->
         </div>
-        <div class="flex items-center gap-4 text-gray-700">
+        <div class="flex items-center text-gray-700">
           <button id="{{ $btnMobileId }}" class="sm:hidden p-1.5 -mr-1" aria-label="Open menu" aria-expanded="false">
-            <svg class="w-5 h-5 text-gray-800" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
+            <span data-icon="open" class="inline-flex">
+              <svg class="w-5 h-5 text-gray-800" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
+            </span>
+            <span data-icon="close" class="hidden">
+              <svg class="w-5 h-5 text-gray-800" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+            </span>
           </button>
         </div>
       </div>
     </div>
     <!-- Primary nav -->
-    <div class="nav-wrap bg-white border-transparent w-full">
+    <div class="nav-wrap bg-white border-transparent w-full mobile-nav-hidden">
       <nav id="{{ $mainNavId }}">
-        <div class="mx-auto max-w-[1280px] px-4 md:px-8 relative flex items-center w-full py-2 sm:py-3 md:py-0">
+        <div class="mx-auto max-w-[1280px] px-4 md:px-8 relative flex items-center w-full sm:py-3 md:py-0">
           <!-- Logo Image - Only visible in collapsed mode, positioned absolutely -->
           <!-- Logo Text - Only visible in collapsed mode -->
-          <div id="{{ $prefix }}-d-logo" class="nav-d-logo select-none">
+          <div id="{{ $prefix }}-d-logo" class="nav-d-logo select-none hidden sm:flex">
             <img
               src="{{ asset('images/Logo-nav.png') }}"
               alt="{{ __('Destro Solutions mark') }}"
-              class="h-6 sm:h-8 w-auto"
+              class="h-6 w-auto"
               loading="lazy"
             />
           </div>
@@ -179,27 +185,18 @@
     </div>
     <!-- Mobile menu -->
     <div id="{{ $mobileMenuId }}" class="md:hidden border-t border-gray-200 bg-white hidden overflow-hidden">
-      <div class="px-4 pt-4 pb-3 flex flex-col items-center justify-between gap-3 border-b border-gray-200">
+      <!-- <div class="px-4 pt-4 pb-3 flex flex-col items-center justify-between gap-3 border-b border-gray-200">
         <div class="flex items-center gap-3">
           <img
             src="{{ asset('images/Logo-nav.png') }}"
             alt="{{ __('Destro Solutions mark') }}"
-            class="h-6 w-auto"
-            loading="lazy"
-          />
-          <img
-            src="{{ asset('images/Logo-text.png') }}"
-            alt="{{ __('Destro Solutions logo') }}"
-            class="h-8 w-auto"
+            class="h-5 w-auto"
             loading="lazy"
           />
         </div>
-      </div>
+      </div> -->
       <div class="px-4 py-3 flex items-center gap-3">
         <input class="flex-1 bg-transparent border-b border-gray-300 focus:border-[#0D0DE0] outline-none text-sm py-1 placeholder:text-gray-400" placeholder="{{ __('Search') }}"/>
-        <button class="p-2 text-gray-700" aria-label="Language">
-          <svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M2 12h20M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg>
-        </button>
       </div>
       <ul class="px-4 pb-4 space-y-3 text-[#0D0DE0]">
         @foreach($navItems as $item)
@@ -307,46 +304,67 @@
 
       // Mobile menu toggle with animation
       if (btnMobile && mobileMenu) {
+        const openIcon = btnMobile.querySelector('[data-icon="open"]');
+        const closeIcon = btnMobile.querySelector('[data-icon="close"]');
+
         btnMobile.addEventListener('click', () => {
           const isOpen = !mobileMenu.classList.contains('hidden');
 
           if (typeof gsap !== 'undefined') {
+            gsap.killTweensOf(mobileMenu);
+
             if (isOpen) {
-              // Close menu
-              gsap.to(mobileMenu, {
-                height: 0,
-                opacity: 0,
-                duration: 0.3,
-                ease: 'power2.inOut',
+              const tlClose = gsap.timeline({
+                defaults: { ease: 'power2.inOut' },
                 onComplete: () => {
                   mobileMenu.classList.add('hidden');
-                  mobileMenu.style.height = '';
+                  mobileMenu.style.removeProperty('height');
+                  mobileMenu.style.removeProperty('opacity');
+                  mobileMenu.style.removeProperty('overflow');
                 }
               });
+
+              tlClose.set(mobileMenu, { overflow: 'hidden' });
+              tlClose.to(mobileMenu, { opacity: 0, duration: 0.18 }, 0)
+                     .to(mobileMenu, { height: 0, duration: 0.22 }, 0.05);
             } else {
-              // Open menu
               mobileMenu.classList.remove('hidden');
-              mobileMenu.style.height = '0';
-              mobileMenu.style.opacity = '0';
+              gsap.set(mobileMenu, { height: 0, opacity: 0, overflow: 'hidden' });
 
-              // Force reflow
-              mobileMenu.offsetHeight;
+              const targetHeight = mobileMenu.scrollHeight;
 
-              const height = mobileMenu.scrollHeight;
-              gsap.to(mobileMenu, {
-                height: height + 'px',
-                opacity: 1,
-                duration: 0.4,
-                ease: 'power2.out'
-              });
+              gsap.timeline({
+                defaults: { ease: 'power2.out' },
+                onComplete: () => {
+                  mobileMenu.style.height = 'auto';
+                  mobileMenu.style.removeProperty('overflow');
+                }
+              })
+              .to(mobileMenu, { height: targetHeight, duration: 0.25 }, 0)
+              .to(mobileMenu, { opacity: 1, duration: 0.18 }, 0.05);
             }
           } else {
             mobileMenu.classList.toggle('hidden');
           }
 
-          btnMobile.setAttribute('aria-expanded', String(!isOpen));
+          const isNowOpen = !isOpen;
+          btnMobile.setAttribute('aria-expanded', String(isNowOpen));
+          if (openIcon && closeIcon) {
+            if (isNowOpen) {
+              openIcon.classList.add('hidden');
+              openIcon.classList.remove('inline-flex');
+              closeIcon.classList.remove('hidden');
+              closeIcon.classList.add('inline-flex');
+            } else {
+              closeIcon.classList.add('hidden');
+              closeIcon.classList.remove('inline-flex');
+              openIcon.classList.remove('hidden');
+              openIcon.classList.add('inline-flex');
+            }
+          }
         });
       }
+
 
       // Language dropdown toggle with animation
       if (langBtn && langDropdown) {

@@ -44,8 +44,8 @@
         };
 
         $postLink = static function ($item): string {
-            if ($item?->slug && \Illuminate\Support\Facades\Route::has('blog.show')) {
-                return route('blog.show', $item->slug);
+            if ($item?->slug && \Illuminate\Support\Facades\Route::has('content.show')) {
+                return route('content.show', $item->slug);
             }
 
             return '#';
@@ -176,10 +176,16 @@
                             @if($hasMorePosts)
                                 <div class="blog-see-more-card" id="blogSeeMoreCard">
                                     <button type="button" class="blog-see-more-button">
-                                        <span class="blog-see-more-circle">
-                                            <span class="blog-see-more-plus">+</span>
-                                        </span>
-                                        <span class="blog-see-more-text">{{ __('See More') }}</span>
+                                        <div class="blog-see-more-content">
+                                            <div class="blog-see-more-icon-wrapper">
+                                                <svg class="blog-see-more-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path>
+                                                </svg>
+                                            </div>
+                                            <h3 class="blog-see-more-text">
+                                                {{ __('See More') }}
+                                            </h3>
+                                        </div>
                                     </button>
                                 </div>
                             @endif
@@ -437,12 +443,12 @@
         }
 
         .blog-see-more-card {
-            border: 2px dashed rgba(13, 13, 224, 0.6);
-            border-radius: 32px;
+            border: 2px dashed #0D0DE0;
+            border-radius: 3rem;
             background: #ffffff;
             min-height: clamp(16rem, 32vw, 19rem);
             display: flex;
-            align-items: center;
+            align-items: stretch;
             justify-content: center;
             transition: all 0.3s ease;
             cursor: pointer;
@@ -450,57 +456,79 @@
 
         .blog-see-more-card:hover {
             border-color: #0D0DE0;
-            box-shadow: 0 22px 46px -24px rgba(13, 13, 224, 0.35);
-            transform: translateY(-6px);
+            background: #f8f9ff;
+            transform: translateY(-8px);
+            box-shadow: 0 12px 24px rgba(13, 13, 224, 0.12);
         }
 
         .blog-see-more-button {
             background: transparent;
             border: none;
+            padding: 0;
+            width: 100%;
+            height: 100%;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .blog-see-more-content {
             display: flex;
             flex-direction: column;
             align-items: center;
             justify-content: center;
+            text-align: center;
+            padding: 2rem 1.5rem;
+            width: 100%;
+            min-height: 100%;
             gap: 1.25rem;
-            color: #0D0DE0;
-            font-weight: 600;
-            font-size: 1.05rem;
-            letter-spacing: 0.02em;
         }
 
-        .blog-see-more-button:focus-visible {
-            outline: 3px solid rgba(13, 13, 224, 0.25);
-            outline-offset: 6px;
-        }
-
-        .blog-see-more-circle {
-            width: 3.5rem;
-            height: 3.5rem;
-            border-radius: 999px;
+        .blog-see-more-icon-wrapper {
+            width: 64px;
+            height: 64px;
+            border-radius: 50%;
             border: 2px solid #0D0DE0;
             display: flex;
             align-items: center;
             justify-content: center;
-            font-size: 1.8rem;
-            line-height: 1;
-            font-weight: 500;
+            transition: all 0.3s ease;
         }
 
-        .blog-see-more-plus {
-            display: inline-flex;
-            align-items: center;
-            justify-content: center;
-            transform: translateY(-1px);
+        .blog-see-more-card:hover .blog-see-more-icon-wrapper {
+            background: #0D0DE0;
+            transform: scale(1.1);
+        }
+
+        .blog-see-more-icon {
+            width: 32px;
+            height: 32px;
+            color: #0D0DE0;
+            transition: all 0.3s ease;
+        }
+
+        .blog-see-more-card:hover .blog-see-more-icon {
+            color: #ffffff;
+            transform: rotate(90deg);
         }
 
         .blog-see-more-text {
-            font-size: 1rem;
+            font-size: 1.25rem;
+            font-weight: 700;
+            color: #0D0DE0;
+            margin: 0;
+            transition: color 0.3s ease;
         }
 
-        .blog-see-more-card.loading,
-        .blog-see-more-card.loading .blog-see-more-button {
+        .blog-see-more-card.loading {
+            opacity: 0.7;
+            cursor: not-allowed;
             pointer-events: none;
-            opacity: 0.6;
+        }
+
+        .blog-see-more-card.loading .blog-see-more-icon {
+            animation: spin 1s linear infinite;
         }
 
         @media (max-width: 767px) {
@@ -555,25 +583,25 @@
                     window.gsap.fromTo(visibleCards, {
                         opacity: 0,
                         y: 36,
-                        scale: 0.97
+                        scale: 0.96
                     }, {
                         opacity: 1,
                         y: 0,
                         scale: 1,
                         duration: 0.75,
                         ease: 'power2.out',
-                        stagger: 0.1
+                        stagger: 0.12
                     });
                 } else {
                     visibleCards.forEach((card, index) => {
                         card.style.opacity = '0';
-                        card.style.transform = 'translateY(28px) scale(0.98)';
+                        card.style.transform = 'translateY(28px)';
                         requestAnimationFrame(() => {
                             setTimeout(() => {
-                                card.style.transition = 'opacity 0.65s ease-out, transform 0.65s ease-out';
+                                card.style.transition = 'opacity 0.7s ease-out, transform 0.7s ease-out';
                                 card.style.opacity = '1';
-                                card.style.transform = 'translateY(0) scale(1)';
-                            }, index * 90);
+                                card.style.transform = 'translateY(0)';
+                            }, index * 100);
                         });
                     });
                 }
@@ -643,7 +671,7 @@
                         if (seeMoreButton !== seeMoreCard) {
                             seeMoreButton.classList.remove('loading');
                         }
-                    }, 180);
+                    }, 200);
                 });
             }
         });

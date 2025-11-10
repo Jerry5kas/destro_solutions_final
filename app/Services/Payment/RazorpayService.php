@@ -3,6 +3,7 @@
 namespace App\Services\Payment;
 
 use App\Models\PaymentSetting;
+use App\Support\Money;
 use Razorpay\Api\Api;
 use Razorpay\Api\Errors\SignatureVerificationError;
 use Illuminate\Support\Facades\Log;
@@ -28,11 +29,12 @@ class RazorpayService implements PaymentGatewayInterface
     public function createPayment(float $amount, string $currency, array $metadata = []): array
     {
         try {
-            $amountInPaise = (int)($amount * 100); // Convert to paise (smallest currency unit)
+            $factor = $this->minorUnitFactor($currency);
+            $amountInMinor = (int) round($amount * $factor);
 
             $orderData = [
                 'receipt' => 'order_' . time(),
-                'amount' => $amountInPaise,
+                'amount' => $amountInMinor,
                 'currency' => strtoupper($currency),
                 'notes' => $metadata,
             ];
@@ -43,7 +45,7 @@ class RazorpayService implements PaymentGatewayInterface
                 'success' => true,
                 'payment_id' => $order['id'],
                 'order_id' => $order['id'],
-                'amount' => $order['amount'] / 100, // Convert from paise
+                'amount' => $order['amount'] / $factor,
                 'currency' => $order['currency'],
                 'key_id' => $this->keyId,
                 'data' => $order,
@@ -89,7 +91,7 @@ class RazorpayService implements PaymentGatewayInterface
                 'payment_id' => $payment['id'],
                 'order_id' => $payment['order_id'],
                 'status' => $payment['status'],
-                'amount' => $payment['amount'] / 100, // Convert from paise
+                'amount' => $payment['amount'] / $this->minorUnitFactor($payment['currency']),
                 'currency' => strtoupper($payment['currency']),
                 'payment_method' => $payment['method'] ?? 'unknown',
                 'metadata' => $payment['notes'] ?? [],
@@ -121,16 +123,18 @@ class RazorpayService implements PaymentGatewayInterface
         try {
             $params = [];
 
+            $payment = $this->api->payment->fetch($paymentId);
+
             if ($amount !== null) {
-                $params['amount'] = (int)($amount * 100); // Convert to paise
+                $params['amount'] = (int) round($amount * $this->minorUnitFactor($payment['currency']));
             }
 
-            $refund = $this->api->payment->fetch($paymentId)->refund($params);
+            $refund = $payment->refund($params);
 
             return [
                 'success' => true,
                 'refund_id' => $refund['id'],
-                'amount' => $refund['amount'] / 100, // Convert from paise
+                'amount' => $refund['amount'] / $this->minorUnitFactor($refund['currency']),
                 'status' => $refund['status'],
                 'data' => $refund->toArray(),
             ];
@@ -156,7 +160,7 @@ class RazorpayService implements PaymentGatewayInterface
                 'success' => true,
                 'payment_id' => $payment['id'],
                 'status' => $payment['status'],
-                'amount' => $payment['amount'] / 100, // Convert from paise
+                'amount' => $payment['amount'] / $this->minorUnitFactor($payment['currency']),
                 'currency' => strtoupper($payment['currency']),
                 'payment_method' => $payment['method'] ?? 'unknown',
                 'data' => $payment->toArray(),
@@ -190,6 +194,16 @@ class RazorpayService implements PaymentGatewayInterface
             Log::error('Razorpay webhook verification failed: ' . $e->getMessage());
             return false;
         }
+    }
+
+    /**
+     * Resolve the smallest unit factor for the given currency.
+     */
+    protected function minorUnitFactor(string $currency): int
+    {
+        $decimals = Money::currency($currency)->decimals ?? 2;
+
+        return (int) pow(10, $decimals);
     }
 }
 

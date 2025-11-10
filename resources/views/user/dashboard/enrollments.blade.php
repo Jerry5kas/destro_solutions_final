@@ -34,10 +34,10 @@
                                 </div>
                                 <div style="text-align: right;">
                                     <div style="font-size: 1.25rem; font-weight: 700; color: #0D0DE0;">
-                                        {{ $enrollment->currency }} {{ number_format((float)$enrollment->amount, 2) }}
+                                        {{ \App\Support\Money::format($enrollment->amount, $enrollment->currency) }}
                                     </div>
                                     @if($enrollment->training)
-                                        <a href="{{ route('trainings.show', $enrollment->training->slug) }}" 
+                                        <a href="{{ route('training.show', $enrollment->training->slug) }}" 
                                            style="display: inline-block; margin-top: 0.5rem; color: #0D0DE0; font-weight: 600; text-decoration: none; font-size: 0.875rem;">
                                             View Details →
                                         </a>

@@ -3,314 +3,398 @@
         $available = \App\Services\Payment\PaymentServiceManager::getAvailableGateways();
         $hasStripe = isset($available['stripe']);
         $hasRazorpay = isset($available['razorpay']);
-        $userEnrollment = auth()->check() ? \App\Models\Enrollment::where('user_id', auth()->id())->where('training_id', $training->id)->first() : null;
+        $userEnrollment = auth()->check()
+            ? \App\Models\Enrollment::where('user_id', auth()->id())->where('training_id', $training->id)->first()
+            : null;
         $isEnrolled = $userEnrollment && $userEnrollment->status === 'paid';
         $paidEnrollments = $training->enrollments()->where('status', 'paid')->count();
-        $availableSpots = $training->max_students ? ($training->max_students - $paidEnrollments) : null;
+        $availableSpots = $training->max_students ? max(0, $training->max_students - $paidEnrollments) : null;
+        $currencyCode = $training->resolvedCurrencyCode();
+        $formattedPrice = \App\Support\Money::format($training->price, $currencyCode);
     @endphp
 
-    <!-- Hero Section with Image -->
-    <section style="position: relative; background: linear-gradient(135deg, #0D0DE0 0%, #6366f1 100%); min-height: 400px; display: flex; align-items: center; margin-top: -128px; padding-top: 200px;">
-        <div style="position: absolute; inset: 0; background: url('{{ $training->image_url }}') center/cover; opacity: 0.15;"></div>
-        <div style="max-width: 1200px; margin: 0 auto; padding: 0 2rem; width: 100%; position: relative; z-index: 1;">
-            <div style="max-width: 800px;">
-                @if($training->category)
-                <div style="display: inline-block; padding: 0.5rem 1rem; background: rgba(255, 255, 255, 0.2); backdrop-filter: blur(10px); border-radius: 20px; margin-bottom: 1rem;">
-                    <span style="color: white; font-size: 0.875rem; font-weight: 600;">{{ $training->category->title }}</span>
-                </div>
+    <x-navbar variant="complex" prefix="page" hideNavLogo="true"/>
+
+    <section class="relative isolate overflow-hidden bg-slate-950">
+        <img src="{{ $training->image_url }}" alt="{{ $training->title }}" class="absolute inset-0 h-full w-full object-cover opacity-35">
+        <div class="absolute inset-0 bg-gradient-to-r from-slate-950/90 via-slate-900/80 to-indigo-900/70"></div>
+        <div class="relative mx-auto flex max-w-6xl flex-col gap-6 px-6 py-16 text-white lg:py-20">
+            @if($training->category)
+                <span class="max-w-max rounded-full border border-white/30 bg-white/10 px-4 py-1 text-sm font-semibold uppercase tracking-wide backdrop-blur">
+                    {{ $training->category->title }}
+                </span>
+            @endif
+            <h1 class="text-3xl font-semibold leading-tight tracking-tight md:text-4xl lg:text-5xl">
+                {{ $training->title }}
+            </h1>
+            <div class="flex flex-wrap gap-4 text-sm font-medium text-white/80">
+                @if($training->start_date)
+                    <span class="inline-flex items-center gap-2 rounded-full bg-white/10 px-4 py-2 backdrop-blur">
+                        <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                        </svg>
+                        {{ $training->start_date->format('M d, Y') }}
+                    </span>
                 @endif
-                <h1 style="font-size: 3rem; font-weight: 700; color: white; margin-bottom: 1rem; line-height: 1.2;">
-                    {{ $training->title }}
-                </h1>
-                <div style="display: flex; flex-wrap: wrap; gap: 1.5rem; color: rgba(255, 255, 255, 0.9); font-size: 1rem;">
-                    @if($training->start_date)
-                    <div style="display: flex; align-items: center; gap: 0.5rem;">
-                        <svg width="20" height="20" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/>
+                @if($training->duration_days)
+                    <span class="inline-flex items-center gap-2 rounded-full bg-white/10 px-4 py-2 backdrop-blur">
+                        <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
                         </svg>
-                        <span>{{ $training->start_date->format('M d, Y') }}</span>
-                    </div>
-                    @endif
-                    @if($training->duration_days)
-                    <div style="display: flex; align-items: center; gap: 0.5rem;">
-                        <svg width="20" height="20" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                        {{ $training->duration_days }} {{ __('days') }}
+                    </span>
+                @endif
+                @if($training->max_students)
+                    <span class="inline-flex items-center gap-2 rounded-full bg-white/10 px-4 py-2 backdrop-blur">
+                        <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
                         </svg>
-                        <span>{{ $training->duration_days }} Days</span>
-                    </div>
-                    @endif
-                    @if($training->max_students)
-                    <div style="display: flex; align-items: center; gap: 0.5rem;">
-                        <svg width="20" height="20" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"/>
+                        @if($availableSpots !== null)
+                            {{ $availableSpots }} {{ __('spots left') }}
+                        @else
+                            {{ __('Flexible cohort size') }}
+                        @endif
+                    </span>
+                @endif
+                @if($training->level)
+                    <span class="inline-flex items-center gap-2 rounded-full bg-white/10 px-4 py-2 backdrop-blur">
+                        <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
                         </svg>
-                        <span>{{ $availableSpots ?? $training->max_students }} / {{ $training->max_students }} Spots Available</span>
-                    </div>
-                    @endif
-                </div>
+                        {{ \Illuminate\Support\Str::title($training->level) }}
+                    </span>
+                @endif
+                @if($training->language)
+                    <span class="inline-flex items-center gap-2 rounded-full bg-white/10 px-4 py-2 backdrop-blur">
+                        <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 5h12M9 3v2m0 14v2m6-6H3" />
+                        </svg>
+                        {{ \Illuminate\Support\Str::upper($training->language) }}
+                    </span>
+                @endif
+                @if($training->delivery_mode)
+                    <span class="inline-flex items-center gap-2 rounded-full bg-white/10 px-4 py-2 backdrop-blur">
+                        <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 12l-8-4-8 4m0 0l8 4 8-4m-16 0v6l8 4 8-4v-6" />
+                        </svg>
+                        {{ \Illuminate\Support\Str::title($training->delivery_mode) }}
+                    </span>
+                @endif
             </div>
         </div>
     </section>
 
-    <!-- Main Content -->
-    <main style="background: #f9fafb; padding: 3rem 0; min-height: calc(100vh - 400px);">
-        <div style="max-width: 1200px; margin: 0 auto; padding: 0 2rem;">
-            <div style="display: grid; grid-template-columns: 1fr 400px; gap: 2rem; align-items: start;">
-                
-                <!-- Left Column - Course Details -->
-                <div>
-                    <!-- Course Overview -->
-                    <div style="background: white; border-radius: 20px; padding: 2.5rem; box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08); margin-bottom: 2rem;">
-                        <h2 style="font-size: 1.75rem; font-weight: 600; color: #111827; margin-bottom: 1.5rem; display: flex; align-items: center; gap: 0.75rem;">
-                            <svg width="28" height="28" fill="none" stroke="#0D0DE0" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"/>
-                            </svg>
-                            Course Overview
-                        </h2>
-                        
+    <main class="bg-slate-50 pt-40 py-20">
+        <div class="relative mx-auto -mt-12 max-w-6xl px-6 lg:-mt-16">
+            <div class="grid gap-8 lg:grid-cols-[minmax(0,2fr)_minmax(280px,1fr)]">
+                <section class="space-y-8">
+                    <article class="rounded-3xl bg-white p-8 shadow-xl ring-1 ring-slate-100">
+                        <header class="flex items-center gap-3 text-xs font-semibold uppercase tracking-[0.2em] text-indigo-500">
+                            <span>{{ __('Course Overview') }}</span>
+                            <span class="h-px flex-1 bg-indigo-100"></span>
+                        </header>
                         @if($training->description)
-                        <div style="color: #4b5563; font-size: 1.0625rem; line-height: 1.8; white-space: pre-wrap; margin-bottom: 2rem;">
-                            {!! nl2br(e($training->description)) !!}
-                        </div>
+                            <div class="prose prose-lg mt-6 max-w-none text-slate-600">
+                                {!! nl2br(e($training->description)) !!}
+                            </div>
                         @endif
-
-                        <!-- Course Details Grid -->
-                        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1.5rem; padding: 1.5rem; background: #f9fafb; border-radius: 16px; margin-bottom: 2rem;">
+                        <dl class="mt-10 grid gap-6 sm:grid-cols-2">
                             @if($training->start_date)
-                            <div>
-                                <div style="font-size: 0.875rem; color: #6b7280; margin-bottom: 0.5rem; font-weight: 500;">Start Date</div>
-                                <div style="font-size: 1.125rem; font-weight: 600; color: #111827;">
-                                    {{ $training->start_date->format('M d, Y') }}
+                                <div class="rounded-2xl border border-slate-100 p-4">
+                                    <dt class="text-xs font-semibold uppercase tracking-wide text-slate-500">{{ __('Start date') }}</dt>
+                                    <dd class="mt-2 text-lg font-semibold text-slate-900">{{ $training->start_date->format('M d, Y') }}</dd>
                                 </div>
-                            </div>
                             @endif
-                            
                             @if($training->end_date)
-                            <div>
-                                <div style="font-size: 0.875rem; color: #6b7280; margin-bottom: 0.5rem; font-weight: 500;">End Date</div>
-                                <div style="font-size: 1.125rem; font-weight: 600; color: #111827;">
-                                    {{ $training->end_date->format('M d, Y') }}
+                                <div class="rounded-2xl border border-slate-100 p-4">
+                                    <dt class="text-xs font-semibold uppercase tracking-wide text-slate-500">{{ __('End date') }}</dt>
+                                    <dd class="mt-2 text-lg font-semibold text-slate-900">{{ $training->end_date->format('M d, Y') }}</dd>
                                 </div>
-                            </div>
                             @endif
-                            
                             @if($training->duration_days)
-                            <div>
-                                <div style="font-size: 0.875rem; color: #6b7280; margin-bottom: 0.5rem; font-weight: 500;">Duration</div>
-                                <div style="font-size: 1.125rem; font-weight: 600; color: #111827;">
-                                    {{ $training->duration_days }} Days
+                                <div class="rounded-2xl border border-slate-100 p-4">
+                                    <dt class="text-xs font-semibold uppercase tracking-wide text-slate-500">{{ __('Duration') }}</dt>
+                                    <dd class="mt-2 text-lg font-semibold text-slate-900">{{ $training->duration_days }} {{ __('days') }}</dd>
                                 </div>
-                            </div>
                             @endif
-                            
+                            @if($training->duration_hours)
+                                <div class="rounded-2xl border border-slate-100 p-4">
+                                    <dt class="text-xs font-semibold uppercase tracking-wide text-slate-500">{{ __('Total hours') }}</dt>
+                                    <dd class="mt-2 text-lg font-semibold text-slate-900">{{ $training->duration_hours }} {{ __('hours') }}</dd>
+                                </div>
+                            @endif
+                            @if($training->session_count)
+                                <div class="rounded-2xl border border-slate-100 p-4">
+                                    <dt class="text-xs font-semibold uppercase tracking-wide text-slate-500">{{ __('Sessions') }}</dt>
+                                    <dd class="mt-2 text-lg font-semibold text-slate-900">{{ $training->session_count }}</dd>
+                                </div>
+                            @endif
+                            @if($training->session_length_minutes)
+                                <div class="rounded-2xl border border-slate-100 p-4">
+                                    <dt class="text-xs font-semibold uppercase tracking-wide text-slate-500">{{ __('Session length') }}</dt>
+                                    <dd class="mt-2 text-lg font-semibold text-slate-900">{{ $training->session_length_minutes }} {{ __('minutes') }}</dd>
+                                </div>
+                            @endif
                             @if($training->max_students)
-                            <div>
-                                <div style="font-size: 0.875rem; color: #6b7280; margin-bottom: 0.5rem; font-weight: 500;">Capacity</div>
-                                <div style="font-size: 1.125rem; font-weight: 600; color: #111827;">
-                                    {{ $training->max_students }} Students
-                                    @if($availableSpots !== null)
-                                        <span style="font-size: 0.875rem; color: {{ $availableSpots > 0 ? '#10b981' : '#ef4444' }}; font-weight: 500;">
-                                            ({{ $availableSpots }} available)
-                                        </span>
-                                    @endif
+                                <div class="rounded-2xl border border-slate-100 p-4">
+                                    <dt class="text-xs font-semibold uppercase tracking-wide text-slate-500">{{ __('Capacity') }}</dt>
+                                    <dd class="mt-2 text-lg font-semibold text-slate-900">
+                                        {{ $training->max_students }}
+                                        @if(!is_null($availableSpots))
+                                            <span class="{{ $availableSpots > 0 ? 'text-emerald-500' : 'text-rose-500' }} text-sm font-semibold">
+                                                ({{ $availableSpots }} {{ __('available') }})
+                                            </span>
+                                        @endif
+                                    </dd>
                                 </div>
-                            </div>
                             @endif
-                        </div>
-                    </div>
+                        </dl>
+                    </article>
 
-                    <!-- Learning Objectives -->
                     @if($training->objective_list && count($training->objective_list) > 0)
-                    <div style="background: white; border-radius: 20px; padding: 2.5rem; box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08); margin-bottom: 2rem;">
-                        <h2 style="font-size: 1.75rem; font-weight: 600; color: #111827; margin-bottom: 1.5rem; display: flex; align-items: center; gap: 0.75rem;">
-                            <svg width="28" height="28" fill="none" stroke="#0D0DE0" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
-                            </svg>
-                            Learning Objectives
-                        </h2>
-                        <div style="display: grid; gap: 1rem;">
-                            @foreach($training->objective_list as $index => $obj)
-                            <div style="display: flex; align-items: start; gap: 1rem; padding: 1rem; background: #f9fafb; border-radius: 12px; border-left: 4px solid #0D0DE0;">
-                                <div style="flex-shrink: 0; width: 32px; height: 32px; background: #0D0DE0; color: white; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: 600; font-size: 0.875rem;">
-                                    {{ $index + 1 }}
-                                </div>
-                                <div style="flex: 1; color: #374151; font-size: 1rem; line-height: 1.6;">
-                                    {{ $obj }}
-                                </div>
-                            </div>
-                            @endforeach
-                        </div>
-                    </div>
+                        <article class="rounded-3xl bg-white p-8 shadow-xl ring-1 ring-slate-100">
+                            <header class="flex items-center gap-3 text-xs font-semibold uppercase tracking-[0.2em] text-indigo-500">
+                                <span>{{ __('Key Objectives') }}</span>
+                                <span class="h-px flex-1 bg-indigo-100"></span>
+                            </header>
+                            <ul class="mt-6 space-y-4">
+                                @foreach($training->objective_list as $objective)
+                                    <li class="flex items-start gap-3 rounded-2xl border border-slate-100 bg-slate-50/70 p-4">
+                                        <span class="mt-0.5 flex h-8 w-8 items-center justify-center rounded-full bg-indigo-500 text-white">
+                                            <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
+                                            </svg>
+                                        </span>
+                                        <p class="text-sm text-slate-700">{{ $objective }}</p>
+                                    </li>
+                                @endforeach
+                            </ul>
+                        </article>
                     @endif
 
-                    <!-- What You'll Learn -->
-                    @if($training->description)
-                    <div style="background: white; border-radius: 20px; padding: 2.5rem; box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);">
-                        <h2 style="font-size: 1.75rem; font-weight: 600; color: #111827; margin-bottom: 1.5rem; display: flex; align-items: center; gap: 0.75rem;">
-                            <svg width="28" height="28" fill="none" stroke="#0D0DE0" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"/>
-                            </svg>
-                            Course Details
-                        </h2>
-                        <div style="color: #4b5563; font-size: 1.0625rem; line-height: 1.8; white-space: pre-wrap;">
-                            {!! nl2br(e($training->description)) !!}
-                        </div>
-                    </div>
+                    @if($training->prerequisites)
+                        <article class="rounded-3xl bg-white p-8 shadow-xl ring-1 ring-slate-100">
+                            <header class="flex items-center gap-3 text-xs font-semibold uppercase tracking-[0.2em] text-indigo-500">
+                                <span>{{ __('Prerequisites') }}</span>
+                                <span class="h-px flex-1 bg-indigo-100"></span>
+                            </header>
+                            <div class="mt-6 space-y-3 text-sm text-slate-600">
+                                @foreach(preg_split("/\r\n|\n|\r/", $training->prerequisites) as $line)
+                                    @if(trim($line) !== '')
+                                        <p>• {{ trim($line) }}</p>
+                                    @endif
+                                @endforeach
+                            </div>
+                        </article>
                     @endif
-                </div>
 
-                <!-- Right Column - Enrollment Card -->
-                <div>
-                    <div style="position: sticky; top: 120px; background: white; border-radius: 20px; padding: 2rem; box-shadow: 0 10px 40px rgba(0, 0, 0, 0.12); border: 1px solid #e5e7eb;">
-                        <!-- Price -->
-                        <div style="margin-bottom: 2rem;">
-                            <div style="font-size: 0.875rem; color: #6b7280; margin-bottom: 0.5rem; font-weight: 500;">Course Fee</div>
-                            <div style="font-size: 2.5rem; font-weight: 700; color: #0D0DE0; margin-bottom: 0.25rem;">
-                                {{ $training->currency }} {{ number_format((float)($training->price ?? 0), 2) }}
-                            </div>
-                            <div style="font-size: 0.875rem; color: #6b7280;">All taxes included</div>
-                        </div>
+                    @if($training->outcomes)
+                        <article class="rounded-3xl bg-white p-8 shadow-xl ring-1 ring-slate-100">
+                            <header class="flex items-center gap-3 text-xs font-semibold uppercase tracking-[0.2em] text-indigo-500">
+                                <span>{{ __('Learning Outcomes') }}</span>
+                                <span class="h-px flex-1 bg-indigo-100"></span>
+                            </header>
+                            <ul class="mt-6 space-y-4">
+                                @foreach($training->outcomes as $outcome)
+                                    <li class="flex items-start gap-3 text-sm text-slate-700">
+                                        <span class="mt-0.5 h-2.5 w-2.5 rounded-full bg-indigo-500"></span>
+                                        <span>{{ $outcome }}</span>
+                                    </li>
+                                @endforeach
+                            </ul>
+                        </article>
+                    @endif
 
-                        <!-- Enrollment Status -->
-                        @if($isEnrolled)
-                        <div style="padding: 1rem; background: #d1fae5; border: 1px solid #a7f3d0; border-radius: 12px; margin-bottom: 1.5rem;">
-                            <div style="display: flex; align-items: center; gap: 0.75rem; margin-bottom: 0.5rem;">
-                                <svg width="20" height="20" fill="none" stroke="#065f46" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>
-                                </svg>
-                                <span style="font-weight: 600; color: #065f46;">You are enrolled in this course</span>
-                            </div>
-                            <div style="font-size: 0.875rem; color: #047857;">
-                                Enrolled on {{ $userEnrollment->enrolled_at->format('M d, Y') }}
-                            </div>
-                            <a href="{{ route('user.dashboard') }}" style="display: inline-block; margin-top: 1rem; padding: 0.75rem 1.5rem; background: #0D0DE0; color: white; border-radius: 10px; font-weight: 600; text-decoration: none; text-align: center; width: 100%;">
-                                Go to Dashboard →
-                            </a>
-                        </div>
-                        @else
-                        <!-- Enrollment Form -->
-                        <form method="POST" action="{{ route('trainings.enroll', $training->slug) }}">
-                            @csrf
-                            
-                            @if ($errors->any())
-                            <div style="margin-bottom: 1rem; padding: 1rem; background: #fee2e2; border: 1px solid #fecaca; border-radius: 12px;">
-                                <div style="color: #991b1b; font-size: 0.875rem; font-weight: 500;">{{ $errors->first() }}</div>
-                            </div>
-                            @endif
+                    @if($training->materials_provided)
+                        <article class="rounded-3xl bg-white p-8 shadow-xl ring-1 ring-slate-100">
+                            <header class="flex items-center gap-3 text-xs font-semibold uppercase tracking-[0.2em] text-indigo-500">
+                                <span>{{ __('Materials Provided') }}</span>
+                                <span class="h-px flex-1 bg-indigo-100"></span>
+                            </header>
+                            <ul class="mt-6 space-y-3 text-sm text-slate-700">
+                                @foreach($training->materials_provided as $material)
+                                    <li class="flex items-center gap-3">
+                                        <svg class="h-4 w-4 text-indigo-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
+                                        </svg>
+                                        <span>{{ $material }}</span>
+                                    </li>
+                                @endforeach
+                            </ul>
+                        </article>
+                    @endif
 
-                            @if(!$training->hasAvailableSpots() && $training->max_students)
-                            <div style="margin-bottom: 1rem; padding: 1rem; background: #fef3c7; border: 1px solid #fde68a; border-radius: 12px;">
-                                <div style="color: #92400e; font-size: 0.875rem; font-weight: 500;">
-                                    ⚠️ This course is full. Please contact us for waitlist options.
-                                </div>
-                            </div>
-                            @endif
-
-                            <!-- Payment Method -->
-                            <div style="margin-bottom: 1.5rem;">
-                                <label style="display: block; font-weight: 600; color: #374151; margin-bottom: 0.75rem; font-size: 0.9375rem;">
-                                    Payment Method
-                                </label>
-                                @if($hasStripe || $hasRazorpay)
-                                <select name="gateway" required style="width: 100%; padding: 1rem; border: 2px solid #e5e7eb; border-radius: 12px; font-size: 1rem; background: white; transition: all 0.2s ease; cursor: pointer;" onchange="this.style.borderColor='#0D0DE0'" onblur="this.style.borderColor='#e5e7eb'">
-                                    @if($hasStripe)
-                                    <option value="stripe">💳 Stripe (Credit/Debit Cards, Wallets)</option>
-                                    @endif
-                                    @if($hasRazorpay)
-                                    <option value="razorpay">💳 Razorpay (UPI, Netbanking, Cards)</option>
-                                    @endif
-                                </select>
-                                @else
-                                <div style="padding: 1rem; background: #fee2e2; border: 1px solid #fecaca; border-radius: 12px; color: #991b1b; font-size: 0.875rem;">
-                                    No payment gateways are enabled. Please contact support.
-                                </div>
+                    @if($training->instructor_name || $training->instructor_bio)
+                        <article class="rounded-3xl bg-white p-8 shadow-xl ring-1 ring-slate-100">
+                            <header class="flex items-center gap-3 text-xs font-semibold uppercase tracking-[0.2em] text-indigo-500">
+                                <span>{{ __('Instructor') }}</span>
+                                <span class="h-px flex-1 bg-indigo-100"></span>
+                            </header>
+                            <div class="mt-6 space-y-3">
+                                @if($training->instructor_name)
+                                    <p class="text-lg font-semibold text-slate-900">{{ $training->instructor_name }}</p>
+                                @endif
+                                @if($training->instructor_bio)
+                                    <p class="text-sm text-slate-600 leading-relaxed">{{ $training->instructor_bio }}</p>
                                 @endif
                             </div>
+                        </article>
+                    @endif
 
-                            <!-- Terms & Conditions -->
-                            <div style="margin-bottom: 1.5rem; padding: 1rem; background: #f9fafb; border-radius: 12px;">
-                                <label style="display: flex; gap: 0.75rem; align-items: flex-start; cursor: pointer;">
-                                    <input type="checkbox" name="accept_terms" value="1" required style="margin-top: 0.25rem; width: 20px; height: 20px; accent-color: #0D0DE0; cursor: pointer; flex-shrink: 0;">
-                                    <span style="color: #4b5563; font-size: 0.9375rem; line-height: 1.6;">
-                                        I agree to the 
-                                        <a href="#" style="color: #0D0DE0; font-weight: 600; text-decoration: underline;">Terms & Conditions</a> 
-                                        and 
-                                        <a href="#" style="color: #0D0DE0; font-weight: 600; text-decoration: underline;">Privacy Policy</a>
+                    @if($training->certification_available || $training->certification_details)
+                        <article class="rounded-3xl bg-white p-8 shadow-xl ring-1 ring-slate-100">
+                            <header class="flex items-center gap-3 text-xs font-semibold uppercase tracking-[0.2em] text-indigo-500">
+                                <span>{{ __('Certification') }}</span>
+                                <span class="h-px flex-1 bg-indigo-100"></span>
+                            </header>
+                            <div class="mt-6 space-y-3 text-sm text-slate-700">
+                                <p class="flex items-center gap-2 font-semibold {{ $training->certification_available ? 'text-emerald-600' : 'text-slate-500' }}">
+                                    <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="{{ $training->certification_available ? 'M5 13l4 4L19 7' : 'M6 18L18 6M6 6l12 12' }}" />
+                                    </svg>
+                                    {{ $training->certification_available ? __('Certificate issued upon completion') : __('No certification provided') }}
+                                </p>
+                                @if($training->certification_details)
+                                    <p class="text-sm text-slate-600 leading-relaxed">{{ $training->certification_details }}</p>
+                                @endif
+                            </div>
+                        </article>
+                    @endif
+
+                    @if($training->content)
+                        <article class="rounded-3xl bg-white p-8 shadow-xl ring-1 ring-slate-100">
+                            <header class="flex items-center gap-3 text-xs font-semibold uppercase tracking-[0.2em] text-indigo-500">
+                                <span>{{ __('More Details') }}</span>
+                                <span class="h-px flex-1 bg-indigo-100"></span>
+                            </header>
+                            <div class="prose prose-lg mt-6 max-w-none text-slate-600">
+                                {!! $training->content !!}
+                            </div>
+                        </article>
+                    @endif
+                </section>
+
+                <aside class="space-y-6 lg:space-y-8 lg:sticky lg:top-24">
+                    <div class="rounded-3xl bg-white p-6 shadow-xl ring-1 ring-slate-100">
+                        <div class="space-y-1.5">
+                            <p class="text-xs font-semibold uppercase tracking-[0.3em] text-slate-500">{{ __('Course fee') }}</p>
+                            @if(!empty($formattedPrice))
+                                <p class="text-3xl font-semibold text-indigo-600">
+                                    {{ $formattedPrice }}
+                                </p>
+                            @else
+                                <p class="text-sm font-medium text-slate-500">{{ __('Contact us for pricing') }}</p>
+                            @endif
+                            <p class="text-xs text-slate-400">{{ __('All taxes included') }}</p>
+                        </div>
+
+                        @if($isEnrolled)
+                            <div class="mt-6 rounded-2xl border border-emerald-200 bg-emerald-50 p-4 text-sm text-emerald-700">
+                                <div class="flex items-center gap-2 font-semibold">
+                                    <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
+                                    </svg>
+                                    {{ __('You are enrolled in this training') }}
+                                </div>
+                                <p class="mt-2 text-emerald-600/80 text-xs">
+                                    {{ __('Enrolled on') }} {{ $userEnrollment->enrolled_at->format('M d, Y') }}
+                                </p>
+                                <a href="{{ route('user.dashboard') }}" class="mt-4 inline-flex w-full justify-center rounded-2xl bg-emerald-500 py-2.5 text-sm font-semibold text-white shadow-lg shadow-emerald-500/30 transition hover:bg-emerald-600">
+                                    {{ __('Go to dashboard') }}
+                                </a>
+                            </div>
+                        @else
+                            <form method="POST" action="{{ route('training.enroll', $training->slug) }}" class="mt-6 space-y-6">
+                                @csrf
+
+                                @if ($errors->any())
+                                    <div class="rounded-2xl border border-rose-200 bg-rose-50 p-4 text-sm text-rose-600">
+                                        {{ $errors->first() }}
+                                    </div>
+                                @endif
+
+                                @if(!$training->hasAvailableSpots() && $training->max_students)
+                                    <div class="rounded-2xl border border-amber-200 bg-amber-50 p-4 text-sm text-amber-700">
+                                        {{ __('This cohort is currently full. Please contact us to join the waitlist.') }}
+                                    </div>
+                                @endif
+
+                                <div class="space-y-2">
+                                    <label class="text-xs font-semibold uppercase tracking-[0.3em] text-slate-500">
+                                        {{ __('Payment method') }}
+                                    </label>
+                                    @if($hasStripe || $hasRazorpay)
+                                        <select name="gateway" required class="w-full rounded-2xl border border-slate-200 bg-white px-4 py-3 text-sm font-medium text-slate-700 shadow-sm transition focus:border-indigo-500 focus:outline-none focus:ring-2 focus:ring-indigo-200">
+                                            @if($hasStripe)
+                                                <option value="stripe">💳 Stripe &mdash; {{ __('Cards, wallets') }}</option>
+                                            @endif
+                                            @if($hasRazorpay)
+                                                <option value="razorpay">💳 Razorpay &mdash; {{ __('UPI, netbanking, cards') }}</option>
+                                            @endif
+                                        </select>
+                                    @else
+                                        <div class="rounded-2xl border border-rose-200 bg-rose-50 p-4 text-sm text-rose-600">
+                                            {{ __('Payments are temporarily unavailable. Please contact support.') }}
+                                        </div>
+                                    @endif
+                                </div>
+
+                                <label class="flex items-start gap-3 rounded-2xl bg-slate-50 p-4 text-sm text-slate-600">
+                                    <input type="checkbox" name="accept_terms" value="1" required class="mt-1 h-4 w-4 rounded border-slate-300 text-indigo-500 focus:ring-indigo-500" />
+                                    <span>
+                                        {!! __('I agree to the :terms and :privacy', [
+                                            'terms' => '<a href="#" class="font-semibold text-indigo-600 underline">'.__('Terms & Conditions').'</a>',
+                                            'privacy' => '<a href="#" class="font-semibold text-indigo-600 underline">'.__('Privacy Policy').'</a>',
+                                        ]) !!}
                                     </span>
                                 </label>
-                            </div>
 
-                            <!-- Enroll Button -->
-                            @auth
-                            <button type="submit" style="width: 100%; padding: 1.125rem 1.5rem; background: linear-gradient(135deg, #0D0DE0 0%, #6366f1 100%); color: white; border: none; border-radius: 12px; font-size: 1.0625rem; font-weight: 600; cursor: pointer; transition: all 0.3s ease; box-shadow: 0 4px 12px rgba(13, 13, 224, 0.3);" 
-                                    @if(!$hasStripe && !$hasRazorpay) disabled @endif
-                                    @if(!$training->hasAvailableSpots() && $training->max_students) disabled @endif
-                                    onmouseover="this.style.transform='translateY(-2px)'; this.style.boxShadow='0 6px 20px rgba(13, 13, 224, 0.4)'"
-                                    onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='0 4px 12px rgba(13, 13, 224, 0.3)'">
-                                Enroll & Continue to Payment
-                            </button>
-                            @else
-                            <div style="text-align: center; padding: 1rem; background: #eff6ff; border-radius: 12px; margin-bottom: 1rem;">
-                                <p style="color: #1e40af; font-size: 0.875rem; margin-bottom: 0.75rem;">Please sign in to enroll</p>
-                                <div style="display: flex; gap: 0.75rem;">
-                                    <a href="{{ route('login') }}" style="flex: 1; padding: 0.875rem; background: #0D0DE0; color: white; border-radius: 10px; font-weight: 600; text-decoration: none; text-align: center; font-size: 0.9375rem;">
-                                        Sign In
-                                    </a>
-                                    <a href="{{ route('register') }}" style="flex: 1; padding: 0.875rem; background: white; color: #0D0DE0; border: 2px solid #0D0DE0; border-radius: 10px; font-weight: 600; text-decoration: none; text-align: center; font-size: 0.9375rem;">
-                                        Sign Up
-                                    </a>
-                                </div>
-                            </div>
-                            @endauth
-                        </form>
+                                @auth
+                                    <button type="submit" class="inline-flex w-full items-center justify-center gap-2 rounded-2xl bg-gradient-to-r from-indigo-500 to-indigo-600 py-3.5 text-sm font-semibold text-white shadow-lg shadow-indigo-500/30 transition hover:-translate-y-0.5 hover:shadow-xl disabled:cursor-not-allowed disabled:opacity-60"
+                                        @if(!$hasStripe && !$hasRazorpay) disabled @endif
+                                        @if(!$training->hasAvailableSpots() && $training->max_students) disabled @endif>
+                                        {{ __('Enroll & continue to payment') }}
+                                    </button>
+                                @else
+                                    <div class="rounded-2xl border border-indigo-100 bg-indigo-50/70 p-4 text-center text-sm text-indigo-700">
+                                        <p class="mb-3 font-medium">{{ __('Please sign in to enroll in this training.') }}</p>
+                                        <div class="flex gap-3">
+                                            <a href="{{ route('login') }}" class="flex-1 rounded-2xl bg-indigo-500 py-2.5 text-sm font-semibold text-white shadow-sm transition hover:bg-indigo-600">
+                                                {{ __('Sign in') }}
+                                            </a>
+                                            <a href="{{ route('register') }}" class="flex-1 rounded-2xl border border-indigo-500 py-2.5 text-sm font-semibold text-indigo-600 transition hover:bg-indigo-500 hover:text-white">
+                                                {{ __('Create account') }}
+                                            </a>
+                                        </div>
+                                    </div>
+                                @endauth
+                            </form>
                         @endif
 
-                        <!-- Course Info -->
-                        <div style="margin-top: 2rem; padding-top: 2rem; border-top: 1px solid #e5e7eb;">
-                            <div style="display: grid; gap: 1rem;">
-                                <div style="display: flex; align-items: center; gap: 0.75rem; color: #6b7280; font-size: 0.875rem;">
-                                    <svg width="18" height="18" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"/>
-                                    </svg>
-                                    <span>Secure payment processing</span>
-                                </div>
-                                <div style="display: flex; align-items: center; gap: 0.75rem; color: #6b7280; font-size: 0.875rem;">
-                                    <svg width="18" height="18" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/>
-                                    </svg>
-                                    <span>Instant enrollment confirmation</span>
-                                </div>
-                                <div style="display: flex; align-items: center; gap: 0.75rem; color: #6b7280; font-size: 0.875rem;">
-                                    <svg width="18" height="18" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
-                                    </svg>
-                                    <span>Access to course materials</span>
-                                </div>
-                            </div>
-                        </div>
+                        <ul class="mt-6 space-y-3 text-sm text-slate-600">
+                            <li class="flex items-center gap-2">
+                                <svg class="h-4 w-4 text-indigo-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                                </svg>
+                                {{ __('Secure payment processing') }}
+                            </li>
+                            <li class="flex items-center gap-2">
+                                <svg class="h-4 w-4 text-indigo-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                                </svg>
+                                {{ __('Instant enrollment confirmation') }}
+                            </li>
+                            <li class="flex items-center gap-2">
+                                <svg class="h-4 w-4 text-indigo-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 10h16M4 14h16M4 18h16" />
+                                </svg>
+                                {{ __('Access to course materials and cohort discussions') }}
+                            </li>
+                        </ul>
                     </div>
-                </div>
+                </aside>
             </div>
         </div>
     </main>
-
-    @push('styles')
-    <style>
-        @media (max-width: 1024px) {
-            section[style*="grid-template-columns: 1fr 400px"] {
-                grid-template-columns: 1fr !important;
-            }
-        }
-        
-        @media (max-width: 768px) {
-            section[style*="font-size: 3rem"] h1 {
-                font-size: 2rem !important;
-            }
-            
-            section[style*="padding: 2.5rem"] {
-                padding: 1.5rem !important;
-            }
-        }
-    </style>
-    @endpush
 </x-layout>
+

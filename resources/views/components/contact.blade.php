@@ -21,7 +21,18 @@
                     {{ __('Get in touch') }}
                 </h2>
 
-                <form id="contact-form" class="flex-1 flex flex-col" data-contact-fields>
+                <form id="contact-form" method="POST" action="{{ route('contact.store') }}" class="flex-1 flex flex-col" data-contact-fields>
+                    @csrf
+                    @php
+                        $contactFlash = session('success');
+                    @endphp
+                    <div
+                        class="{{ $contactFlash ? 'mb-4 rounded-md border border-emerald-300 bg-emerald-50 px-3 py-2 text-sm text-emerald-700' : 'hidden mb-4 rounded-md border px-3 py-2 text-sm' }}"
+                        data-contact-alert
+                        role="alert"
+                    >
+                        {{ $contactFlash }}
+                    </div>
                     <div class="space-y-3 flex-1" data-contact-inputs>
                         <!-- Name Field -->
                         <div>
@@ -33,6 +44,7 @@
                                 id="contact-name" 
                                 name="name"
                                 placeholder="{{ __('Enter name') }}"
+                                value="{{ old('name') }}"
                                 class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[#0D0DE0] focus:border-transparent transition-all duration-200 text-sm"
                                 required
                             />
@@ -48,6 +60,7 @@
                                 id="contact-email" 
                                 name="email"
                                 placeholder="{{ __('Enter email') }}"
+                                value="{{ old('email') }}"
                                 class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[#0D0DE0] focus:border-transparent transition-all duration-200 text-sm"
                                 required
                             />
@@ -63,6 +76,7 @@
                                 id="contact-mobile" 
                                 name="mobile"
                                 placeholder="{{ __('Enter mobile') }}"
+                                value="{{ old('mobile') }}"
                                 class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[#0D0DE0] focus:border-transparent transition-all duration-200 text-sm"
                                 required
                             />
@@ -80,7 +94,7 @@
                                 placeholder="{{ __('Enter your message') }}"
                                 class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[#0D0DE0] focus:border-transparent transition-all duration-200 resize-none text-sm"
                                 required
-                            ></textarea>
+                            >{{ old('message') }}</textarea>
                         </div>
                     </div>
 
@@ -220,36 +234,95 @@
             observer.observe(contactSection);
         }
         
+        const contactMessages = {
+            sending: @json(__('Sending...')),
+            success: @json(__('Your message has been sent successfully.')),
+            error: @json(__('Something went wrong while sending your message. Please try again.')),
+        };
+
         if (contactForm) {
-            contactForm.addEventListener('submit', function(e) {
-                e.preventDefault();
-                
-                // Get form data
-                const formData = {
-                    name: document.getElementById('contact-name').value,
-                    email: document.getElementById('contact-email').value,
-                    mobile: document.getElementById('contact-mobile').value,
-                    message: document.getElementById('contact-message').value
+            const alertBox = document.querySelector('[data-contact-alert]');
+            const submitButton = contactForm.querySelector('button[type="submit"]');
+            const defaultButtonContent = submitButton ? submitButton.innerHTML : '';
+
+            function showAlert(type, message) {
+                if (!alertBox) return;
+
+                const baseClasses = [
+                    'mb-4',
+                    'rounded-md',
+                    'border',
+                    'px-3',
+                    'py-2',
+                    'text-sm',
+                ];
+
+                const stylesByType = {
+                    success: ['border-emerald-300', 'bg-emerald-50', 'text-emerald-700'],
+                    error: ['border-rose-300', 'bg-rose-50', 'text-rose-700'],
+                    info: ['border-sky-300', 'bg-sky-50', 'text-sky-700'],
                 };
-                
-                // Here you can add form submission logic
-                // For now, just log it
-                console.log('Contact form submitted:', formData);
-                
-                // You can add AJAX call here to submit to your backend
-                // Example:
-                // fetch('/contact', {
-                //     method: 'POST',
-                //     headers: {
-                //         'Content-Type': 'application/json',
-                //         'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content
-                //     },
-                //     body: JSON.stringify(formData)
-                // })
-                
-                // Reset form after submission (optional)
-                // contactForm.reset();
-            });
+
+                alertBox.className = ['hidden', ...baseClasses].join(' ');
+                alertBox.textContent = '';
+
+                if (message) {
+                    alertBox.className = [...baseClasses, ...(stylesByType[type] ?? stylesByType.info)].join(' ');
+                    alertBox.textContent = message;
+                }
+            }
+
+            async function handleSubmit(event) {
+                event.preventDefault();
+
+                if (!window.axios) {
+                    contactForm.submit();
+                    return;
+                }
+
+                showAlert(); // reset
+
+                const formData = new FormData(contactForm);
+                const payload = Object.fromEntries(formData.entries());
+
+                if (submitButton) {
+                    submitButton.disabled = true;
+                    submitButton.innerHTML = `<span class="inline-flex items-center gap-2"><span class="h-4 w-4 animate-spin rounded-full border-2 border-white/40 border-t-white"></span> ${contactMessages.sending}</span>`;
+                }
+
+                try {
+                    const response = await window.axios.post(contactForm.action, payload, {
+                        headers: {
+                            Accept: 'application/json',
+                        },
+                    });
+
+                    showAlert('success', response.data?.message ?? contactMessages.success);
+                    contactForm.reset();
+                } catch (error) {
+                    let message = contactMessages.error;
+
+                    if (error.response) {
+                        if (error.response.status === 422) {
+                            const errors = error.response.data?.errors;
+                            if (errors) {
+                                message = Object.values(errors).flat().shift() ?? message;
+                            }
+                        } else if (error.response.data?.message) {
+                            message = error.response.data.message;
+                        }
+                    }
+
+                    showAlert('error', message);
+                } finally {
+                    if (submitButton) {
+                        submitButton.disabled = false;
+                        submitButton.innerHTML = defaultButtonContent;
+                    }
+                }
+            }
+
+            contactForm.addEventListener('submit', handleSubmit);
         }
     });
 </script>

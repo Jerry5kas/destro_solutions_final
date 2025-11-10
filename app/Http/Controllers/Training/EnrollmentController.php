@@ -7,6 +7,11 @@ use App\Models\ContentItem;
 use App\Models\Enrollment;
 use App\Models\Payment;
 use App\Services\Payment\PaymentHelper;
+use App\Models\PaymentSetting;
+use App\Support\Money;
+use App\Support\AdminNotifier;
+use App\Notifications\Admin\NewEnrollmentNotification;
+use App\Notifications\Admin\PaymentStatusNotification;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 
@@ -33,16 +38,20 @@ class EnrollmentController extends Controller
         $user = Auth::user();
 
         // Create enrollment with pending status
+        $currencyCode = $training->resolvedCurrencyCode() ?: (PaymentSetting::current()->currency ?? Money::defaultCode());
+
         $enrollment = Enrollment::create([
             'user_id' => $user->id,
             'training_id' => $training->id,
             'payment_method' => $request->gateway,
             'amount' => $training->price ?? 0,
-            'currency' => $training->currency ?? config('payment.currency.default', 'USD'),
+            'currency' => $currencyCode,
             'status' => 'pending',
             'terms_accepted' => true,
             'terms_accepted_at' => now(),
         ]);
+
+        AdminNotifier::notify(new NewEnrollmentNotification($enrollment));
 
         // Initiate payment via selected gateway
         $gateway = PaymentHelper::gateway($request->gateway);
@@ -68,6 +77,8 @@ class EnrollmentController extends Controller
             'payment_method' => null,
             'metadata' => $paymentInit['data'] ?? [],
         ]);
+
+        AdminNotifier::notify(new PaymentStatusNotification($payment, 'Pending', 'Awaiting gateway confirmation.'));
 
         // Render checkout with appropriate params
         return view('payment.checkout', [

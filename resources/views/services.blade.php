@@ -76,7 +76,7 @@
                         @endif
                         <div class="featured-actions">
                             <a 
-                                href="{{ route('services', ['category' => $featuredService->category->slug ?? null]) }}" 
+                                href="{{ route('content.show', $featuredService->slug) }}" 
                                 class="featured-primary-btn"
                             >
                                 {{ __('Read More') }}
@@ -130,7 +130,7 @@
                                 </p>
                             @endif
                             <a 
-                                href="{{ route('services', ['category' => $service->category->slug ?? null]) }}" 
+                                href="{{ route('content.show', $service->slug) }}" 
                                 class="service-card-button"
                             >
                                 {{ __('Discover More') }}

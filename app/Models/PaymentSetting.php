@@ -34,7 +34,12 @@ class PaymentSetting extends Model
             'stripe_enabled' => config('payment.gateways.stripe.enabled', true),
             'razorpay_enabled' => config('payment.gateways.razorpay.enabled', true),
             'default_gateway' => config('payment.default_gateway', 'stripe'),
-            'currency' => config('payment.currency.default', 'USD'),
+            'currency' => config('payment.currency.default', 'INR'),
         ]);
+    }
+
+    public function setCurrencyAttribute($value): void
+    {
+        $this->attributes['currency'] = strtoupper($value);
     }
 }

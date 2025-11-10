@@ -60,7 +60,7 @@
                     <div style="display: grid; grid-template-columns: 150px 1fr; gap: 1rem; padding-bottom: 1rem; border-bottom: 1px solid #f3f4f6;">
                         <div style="font-weight: 600; color: #6b7280;">Amount:</div>
                         <div style="font-size: 1.25rem; font-weight: 700; color: #0D0DE0;">
-                            {{ $payment->currency }} {{ number_format((float)$payment->amount, 2) }}
+                            {{ \App\Support\Money::format($payment->amount, $payment->currency) }}
                         </div>
                     </div>
                     

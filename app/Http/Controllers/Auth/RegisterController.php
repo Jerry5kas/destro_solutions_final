@@ -7,6 +7,8 @@ use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
+use App\Support\AdminNotifier;
+use App\Notifications\Admin\NewUserRegisteredNotification;
 
 class RegisterController extends Controller
 {
@@ -39,6 +41,8 @@ class RegisterController extends Controller
             'password' => Hash::make($validated['password']),
             'is_admin' => false, // Ensure new users are not admins
         ]);
+
+        AdminNotifier::notify(new NewUserRegisteredNotification($user));
 
         Auth::login($user);
 

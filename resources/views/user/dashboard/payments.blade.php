@@ -50,7 +50,7 @@
                                 </div>
                                 <div style="text-align: right;">
                                     <div style="font-size: 1.25rem; font-weight: 700; color: #0D0DE0;">
-                                        {{ $payment->currency }} {{ number_format((float)$payment->amount, 2) }}
+                                        {{ \App\Support\Money::format($payment->amount, $payment->currency) }}
                                     </div>
                                 </div>
                             </div>

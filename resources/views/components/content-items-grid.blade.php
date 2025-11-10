@@ -70,7 +70,7 @@
                             @endif
                             @if($contentType === 'training')
                                 <a 
-                                    href="{{ route('trainings.show', $item->slug) }}" 
+                                    href="{{ route('training.show', $item->slug) }}" 
                                     class="inline-flex items-center text-[#0D0DE0] font-semibold text-sm hover:underline"
                                 >
                                     {{ __('Learn More') }}

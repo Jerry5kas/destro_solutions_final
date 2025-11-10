@@ -23,7 +23,7 @@
                         {{ __('From foundational courses to advanced certifications, we provide comprehensive learning paths tailored to your needs. Each program is designed to deliver practical, real-world skills that your team can immediately apply to accelerate your SDV journey.') }}
                     </p>
                     <div class="pt-2">
-                        <a href="{{ route('trainings.index') }}" class="inline-block border-2 border-[#0D0DE0] text-[#0D0DE0] px-6 py-3 rounded-full hover:bg-[#0D0DE0] hover:text-white transition-colors duration-300 font-medium">
+                        <a href="#training-cards" class="inline-block border-2 border-[#0D0DE0] text-[#0D0DE0] px-6 py-3 rounded-full hover:bg-[#0D0DE0] hover:text-white transition-colors duration-300 font-medium">
                             {{ __('Browse All Trainings') }}
                         </a>
                     </div>
@@ -108,9 +108,25 @@
                                     <div class="training-card-hover-overlay">
                                         <div class="training-card-hover-content">
                                             <p class="training-card-hover-description">
-                                                {{ Str::limit(strip_tags($training['description'] ?? ''), 150) }}
+                                                {{ \Illuminate\Support\Str::limit(strip_tags($training['description'] ?? ''), 150) }}
                                             </p>
-                                            <a href="{{ $training['link'] }}" class="training-card-enroll-btn">
+                                            <div class="space-y-2 text-xs text-gray-500">
+                                                @if(!empty($training['formatted_price']))
+                                                    <p>{{ __('Investment') }}: <strong class="text-gray-700">
+                                                        {{ $training['formatted_price'] }}
+                                                    </strong></p>
+                                                @endif
+                                                @if(!empty($training['duration_days']))
+                                                    <p>{{ __('Duration') }}: <strong class="text-gray-700">{{ $training['duration_days'] }} {{ __('days') }}</strong></p>
+                                                @endif
+                                                @if(!empty($training['level']))
+                                                    <p>{{ __('Level') }}: <strong class="text-gray-700">{{ \Illuminate\Support\Str::title($training['level']) }}</strong></p>
+                                                @endif
+                                                @if(!empty($training['language']))
+                                                    <p>{{ __('Language') }}: <strong class="text-gray-700">{{ \Illuminate\Support\Str::upper($training['language']) }}</strong></p>
+                                                @endif
+                                            </div>
+                                            <a href="{{ route('training.show', $training['slug']) }}" class="training-card-enroll-btn">
                                                 <span>{{ __('Enroll Now') }}</span>
                                                 <svg class="training-button-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path>

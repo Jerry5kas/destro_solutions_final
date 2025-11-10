@@ -1,5 +1,5 @@
 @props([
-    'title' => 'Page Title',
+    'title' => '',
     'description' => null,
     'imagePath' => 'images/default.png',
 ])

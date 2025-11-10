@@ -19,6 +19,7 @@ use App\Http\Controllers\Admin\ContentController;
 use App\Http\Controllers\Admin\CategoryController;
 use App\Http\Controllers\Admin\ContactController as AdminContactController;
 use App\Http\Controllers\Admin\SeoController;
+use App\Http\Controllers\Admin\NotificationController as AdminNotificationController;
 use App\Http\Middleware\EnsureUserIsAdmin;
 use Illuminate\Support\Facades\Route;
 
@@ -32,16 +33,16 @@ Route::get('/products/{category?}', [PageController::class, 'products'])->name('
 
 Route::get('/training/{category?}', [PageController::class, 'training'])->name('training');
 Route::get('/blog', [PageController::class, 'blog'])->name('blog');
+Route::get('/content/{slug}', [PageController::class, 'contentItemShow'])->name('content.show');
 Route::get('/contact', [PageController::class, 'contact'])->name('contact');
 Route::post('/contact', [ContactController::class, 'store'])->name('contact.store');
 
-// Trainings listing & detail for enrollment (marketing / app)
-Route::get('/trainings', [TrainingController::class, 'index'])->name('trainings.index');
-Route::get('/trainings/{slug}', [TrainingController::class, 'show'])->name('trainings.show');
+    // Trainings listing & detail for enrollment (marketing / app)
+Route::get('/training/course/{slug}', [TrainingController::class, 'show'])->name('training.show');
 
 // Enrollment - requires login (only for non-admin users)
 Route::middleware(['auth', \App\Http\Middleware\EnsureUserIsNotAdmin::class])->group(function () {
-    Route::post('/trainings/{slug}/enroll', [EnrollmentController::class, 'store'])->name('trainings.enroll');
+    Route::post('/training/course/{slug}/enroll', [EnrollmentController::class, 'store'])->name('training.enroll');
 });
 
 // Payment returns
@@ -132,6 +133,11 @@ Route::prefix('admin')->name('admin.')->group(function () {
         // Contact Messages Routes
         Route::resource('contacts', AdminContactController::class)->except(['create', 'edit']);
         Route::put('/contacts/{id}/status', [AdminContactController::class, 'update'])->name('contacts.update.status');
+
+        // Notifications
+        Route::get('/notifications-feed', [AdminNotificationController::class, 'index'])->name('notifications.index');
+        Route::post('/notifications/{notification}/mark-as-read', [AdminNotificationController::class, 'markAsRead'])->name('notifications.read');
+        Route::post('/notifications/mark-all-read', [AdminNotificationController::class, 'markAllAsRead'])->name('notifications.read_all');
         
         // SEO Management Routes
         Route::get('/seo', [SeoController::class, 'index'])->name('seo.index');

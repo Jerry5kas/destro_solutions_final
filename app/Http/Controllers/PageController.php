@@ -4,7 +4,10 @@ namespace App\Http\Controllers;
 
 use App\Models\ContentItem;
 use App\Models\Category;
+use App\Models\Currency;
 use Illuminate\Http\Request;
+use Illuminate\Support\Str;
+use App\Support\Money;
 
 class PageController extends Controller
 {
@@ -124,21 +127,37 @@ class PageController extends Controller
             $trainingsQuery->where('category_id', $selectedCategory->id);
         }
 
-        $trainings = $trainingsQuery->orderBy('order')
+        $currencies = Currency::orderByDesc('is_default')->get()->keyBy('code');
+        $defaultCurrency = $currencies->firstWhere('is_default', true)
+            ?? $currencies->first()
+            ?? Currency::defaultCurrency();
+
+        $trainings = $trainingsQuery->with(['category'])
+            ->orderBy('order')
             ->orderBy('created_at', 'desc')
             ->get()
-            ->map(function ($item) {
+            ->map(function ($item) use ($defaultCurrency, $currencies) {
+                $currencyCode = $item->currency_code ?? $item->currency ?? $defaultCurrency->code;
+                $currency = $currencies->get($currencyCode, $defaultCurrency);
                 return [
                     'id' => $item->id,
                     'title' => $item->title,
                     'description' => $item->description ?? $item->content,
                     'image' => $item->image_url ?? asset('images/training.jpeg'),
-                    'link' => route('trainings.show', $item->slug),
+                    'slug' => $item->slug,
+                    'link' => route('training.show', $item->slug),
                     'price' => $item->price,
-                    'currency' => $item->currency ?? 'USD',
+                    'currency_code' => $currencyCode,
+                    'currency_symbol' => $currency->symbol ?? $currencyCode,
+                    'currency_decimals' => $currency->decimals ?? 2,
+                    'formatted_price' => Money::format($item->price, $currencyCode),
                     'start_date' => $item->start_date?->format('M d, Y'),
                     'duration_days' => $item->duration_days,
+                    'duration_hours' => $item->duration_hours,
+                    'session_count' => $item->session_count,
                     'category' => $item->category->title ?? null,
+                    'level' => $item->level,
+                    'language' => $item->language,
                 ];
             })
             ->toArray();
@@ -161,6 +180,55 @@ class PageController extends Controller
             ->get();
 
         return view('blog', compact('blogs'));
+    }
+
+    /**
+     * Display an individual content item detail page.
+     */
+    public function contentItemShow(string $slug)
+    {
+        $contentItem = ContentItem::with('category')
+            ->where('slug', $slug)
+            ->where('status', 'active')
+            ->firstOrFail();
+
+        $bannerDescription = Str::limit(strip_tags($contentItem->description ?? ''), 200);
+
+        $relatedItems = collect();
+
+        $sameCategory = ContentItem::with('category')
+            ->where('status', 'active')
+            ->where('type', $contentItem->type)
+            ->where('id', '!=', $contentItem->id)
+            ->when($contentItem->category_id, function ($query) use ($contentItem) {
+                $query->where('category_id', $contentItem->category_id);
+            })
+            ->orderByDesc('date')
+            ->orderByDesc('created_at')
+            ->take(8)
+            ->get();
+
+        $relatedItems = $sameCategory;
+
+        if ($relatedItems->count() < 4) {
+            $additional = ContentItem::with('category')
+                ->where('status', 'active')
+                ->where('type', $contentItem->type)
+                ->where('id', '!=', $contentItem->id)
+                ->whereNotIn('id', $relatedItems->pluck('id'))
+                ->orderByDesc('date')
+                ->orderByDesc('created_at')
+                ->take(8 - $relatedItems->count())
+                ->get();
+
+            $relatedItems = $relatedItems->concat($additional);
+        }
+
+        return view('content.show', [
+            'contentItem' => $contentItem,
+            'bannerDescription' => $bannerDescription,
+            'relatedItems' => $relatedItems,
+        ]);
     }
 
     /**

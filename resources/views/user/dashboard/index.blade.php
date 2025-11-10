@@ -74,7 +74,7 @@
                                 </div>
                                 <div style="text-align: right; margin-left: 1rem;">
                                     <div style="font-size: 1.125rem; font-weight: 700; color: #0D0DE0;">
-                                        {{ $enrollment->currency }} {{ number_format((float)$enrollment->amount, 2) }}
+                                        {{ \App\Support\Money::format($enrollment->amount, $enrollment->currency) }}
                                     </div>
                                     @if($enrollment->status === 'paid')
                                         <a href="#" style="display: inline-block; margin-top: 0.5rem; padding: 0.5rem 1rem; background: #0D0DE0; color: white; border-radius: 8px; font-size: 0.875rem; font-weight: 600; text-decoration: none;">
