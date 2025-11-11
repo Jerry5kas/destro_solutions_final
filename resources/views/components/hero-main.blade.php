@@ -1,31 +1,51 @@
+@props(['hero' => null])
+
+@php
+    $title = $hero['title'] ?? __('Software Defined Vehicles');
+    $description = $hero['description'] ?? __("Innovative Tomorrow's Mobility");
+    $ctaLabel = $hero['cta_label'] ?? __('Connect Us');
+    $ctaHref = $hero['cta_href'] ?? '#contact';
+    $imageUrl = $hero['image_url'] ?? asset('images/main.png');
+    $videoUrl = $hero['video_url'] ?? asset('video/default-video.mp4');
+
+    $descriptionPrimary = trim($description);
+    $descriptionAccent = null;
+
+    if (str_contains($descriptionPrimary, ' ')) {
+        $lastSpace = strrpos($descriptionPrimary, ' ');
+        if ($lastSpace !== false) {
+            $descriptionAccent = trim(substr($descriptionPrimary, $lastSpace + 1));
+            $descriptionPrimary = trim(substr($descriptionPrimary, 0, $lastSpace));
+            if ($descriptionAccent === '') {
+                $descriptionAccent = null;
+            }
+        }
+    }
+@endphp
+
 <section class="relative h-screen w-full hero-main" style="margin: 0; padding: 0; z-index: 1 !important;">
     <!-- Background Image - overflow handled here, not on parent -->
     <div class="absolute inset-0 z-0 bg-gray-900" style="overflow: hidden;">
-        @php
-            // Use the provided default image
-            $imageUrl = asset('images/main.png');
-        @endphp
         <img
             src="{{ $imageUrl }}"
-            alt="Software Defined Vehicles"
+            alt="{{ $title }}"
             class="absolute inset-0 w-full h-full object-cover hero-bg-image"
             loading="eager"
             style="will-change: opacity;"
         />
         <!-- Background Video (hover to reveal) -->
-        @php
-            $videoUrl = asset('video/default-video.mp4');
-        @endphp
-        <video
-            class="absolute inset-0 w-full h-full object-cover hero-video"
-            muted
-            loop
-            playsinline
-            preload="auto"
-            style="will-change: opacity;"
-        >
-            <source src="{{ $videoUrl }}" type="video/mp4">
-        </video>
+        @if($videoUrl)
+            <video
+                class="absolute inset-0 w-full h-full object-cover hero-video"
+                muted
+                loop
+                playsinline
+                preload="auto"
+                style="will-change: opacity;"
+            >
+                <source src="{{ $videoUrl }}" type="video/mp4">
+            </video>
+        @endif
     </div>
 
     <!-- Overlay Section - Light overlay for text readability -->
@@ -38,20 +58,23 @@
                 <div class="space-y-10">
                     <!-- Big Text -->
                     <h1 class="hero-title text-2xl sm:text-8xl font-extrabold text-white leading-tight mb-4 md:mb-6 drop-shadow-lg">
-                        {{ __('Software Defined Vehicles') }}
+                        {{ $title }}
                     </h1>
                     <!-- Medium Text -->
                     <p class="hero-subtitle text-xl sm:text-4xl text-white mb-8 md:mb-10 font-bold drop-shadow-md">
-                        {{ __('Innovative Tomorrow') }} <span class="text-[#0D0DE0] font-bold hero-mobility">{{ __('Mobility') }}</span>
+                        {{ $descriptionPrimary }}
+                        @if($descriptionAccent)
+                            <span class="text-[#0D0DE0] font-bold hero-mobility">{{ $descriptionAccent }}</span>
+                        @endif
                     </p>
                 </div>
 
                 <!-- Connect Us Button -->
                 <a
-                    href="#contact"
+                    href="{{ $ctaHref }}"
                     class="hero-button inline-block mt-0 sm:mt-16 px-8 py-3 bg-[#0D0DE0] text-white font-semibold text-lg rounded-full hover:bg-[#0a0ab3] transition-colors duration-300 shadow-lg hover:shadow-xl transform hover:scale-105 pointer-events-auto"
                 >
-                    {{ __('Connect Us') }}
+                    {{ $ctaLabel }}
                 </a>
             </div>
         </div>

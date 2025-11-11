@@ -10,6 +10,11 @@
         ],
         'content' => [
             [
+                'label' => 'Banners',
+                'route' => 'admin.banners.index',
+                'icon' => '<svg width="20" height="20" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 10h16M4 14h16M4 18h16"/></svg>'
+            ],
+            [
                 'label' => 'Quantum',
                 'route' => 'admin.content.index',
                 'route_params' => ['type' => 'quantum'],
@@ -107,10 +112,15 @@
             </a>
             @foreach($menuItems['content'] as $item)
                 @php
-                    $currentType = request()->route('type');
-                    $isActive = $currentType === ($item['route_params']['type'] ?? '');
+                    $routeParams = $item['route_params'] ?? [];
+                    if (isset($routeParams['type'])) {
+                        $currentType = request()->route('type');
+                        $isActive = $currentType === $routeParams['type'];
+                    } else {
+                        $isActive = $currentRoute === $item['route'] || str_starts_with($currentRoute, str_replace('.index', '', $item['route']));
+                    }
                 @endphp
-                <a href="{{ route($item['route'], $item['route_params']) }}" 
+                <a href="{{ route($item['route'], $routeParams) }}" 
                    class="menu-item {{ $isActive ? 'active' : '' }}">
                     <div class="menu-item-icon">
                         {!! $item['icon'] !!}

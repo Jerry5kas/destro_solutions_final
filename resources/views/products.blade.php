@@ -1,9 +1,6 @@
 <x-layout title="Destrosolutions - Products">
     <x-navbar variant="complex" prefix="page" hideNavLogo="true"/>
-    <x-banner-page 
-        :title="__('Products')" 
-        :description="__('Explore our productized accelerators for SDV, cybersecurity, and OTA.')"
-        imagePath="images/products.jpeg"/>
+    <x-banner-page :banner="$banner"/>
     
     <!-- Products Intro Section -->
     <section class="relative w-full py-12 md:py-16 lg:py-20 bg-white">

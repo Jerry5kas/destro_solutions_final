@@ -1,9 +1,6 @@
 <x-layout title="Destrosolutions - Training">
     <x-navbar variant="complex" prefix="page" hideNavLogo="true"/>
-    <x-banner-page 
-        :title="__('Training')" 
-        :description="__('Hands-on trainings in cybersecurity, functional safety, and ASPICE.')"
-        imagePath="images/training.jpeg"/>
+    <x-banner-page :banner="$banner"/>
     
     <!-- Training Introduction Section -->
     <section class="relative w-full py-12 md:py-16 lg:py-20 bg-white" style="z-index: 1;">

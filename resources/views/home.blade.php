@@ -1,6 +1,6 @@
 <x-layout title="Destrosolutions - Software Defined Vehicles">
     <x-navbar variant="complex" prefix="page" hideNavLogo="true"/>
-    <x-hero-main/>
+    <x-hero-main :hero="$hero"/>
     <x-statistics/>
     <x-about/>
     <x-products/>

@@ -1,21 +1,33 @@
 @props([
+    'banner' => null,
     'title' => '',
     'description' => null,
     'imagePath' => 'images/default.png',
 ])
 
-<section class="relative min-h-[60vh] md:min-h-[70vh] w-full banner-page" style="margin: 0; padding: 0; z-index: 1 !important;">
+@php
+    $resolvedTitle = $banner['title'] ?? $title ?? '';
+    $resolvedDescription = $banner['description'] ?? $description;
+    $resolvedImageUrl = $banner['image_url'] ?? null;
+    $resolvedType = $banner['type'] ?? null;
+
+    if ($resolvedTitle === '') {
+        $resolvedTitle = __('Destrosolutions');
+    }
+
+    if (!$resolvedImageUrl) {
+        $path = $imagePath ?: 'images/default.png';
+        $resolvedImageUrl = filter_var($path, FILTER_VALIDATE_URL)
+            ? $path
+            : asset(ltrim($path, '/'));
+    }
+@endphp
+
+<section class="relative min-h-[60vh] md:min-h-[70vh] w-full banner-page" style="margin: 0; padding: 0; z-index: 1 !important;" @if($resolvedType) data-banner-type="{{ $resolvedType }}" @endif>
     <div class="absolute inset-0 z-0 bg-gray-900" style="overflow: hidden;">
-        @php
-            // Force a reliable default image; allow simple override via imagePath
-            $imageUrl = asset('images/default.png');
-            if (!empty($imagePath) && $imagePath !== 'images/default.png') {
-                $imageUrl = asset(ltrim($imagePath, '/'));
-            }
-        @endphp
         <img
-            src="{{ $imageUrl }}"
-            alt="{{ $title }}"
+            src="{{ $resolvedImageUrl }}"
+            alt="{{ $resolvedTitle }}"
             class="absolute inset-0 w-full h-full object-cover banner-bg-image"
             loading="eager"
             style="will-change: opacity;"
@@ -35,9 +47,9 @@
     <div class="relative z-20 h-full py-16 md:py-28 flex items-center">
         <div class="mx-auto max-w-[1280px] px-4 md:px-8 w-full">
             <div class="w-full space-y-4 md:space-y-6">
-                <h1 class="banner-title text-3xl sm:text-5xl md:text-7xl font-extrabold text-white leading-tight drop-shadow-lg">{{ $title }}</h1>
-                @if($description)
-                    <p class="banner-description text-base sm:text-lg md:text-2xl text-white/90 font-normal drop-shadow-md max-w-2xl">{{ $description }}</p>
+                <h1 class="banner-title text-3xl sm:text-5xl md:text-7xl font-extrabold text-white leading-tight drop-shadow-lg">{{ $resolvedTitle }}</h1>
+                @if($resolvedDescription)
+                    <p class="banner-description text-base sm:text-lg md:text-2xl text-white/90 font-normal drop-shadow-md max-w-2xl">{{ $resolvedDescription }}</p>
                 @endif
             </div>
         </div>

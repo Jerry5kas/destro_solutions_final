@@ -2,10 +2,11 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Banner;
 use App\Models\ContentItem;
 use App\Models\Category;
 use App\Models\Currency;
-use Illuminate\Http\Request;
+use App\Models\HeroSection;
 use Illuminate\Support\Str;
 use App\Support\Money;
 
@@ -18,7 +19,11 @@ class PageController extends Controller
      */
     public function home()
     {
-        return view('home');
+        $hero = $this->getHeroData();
+
+        return view('home', [
+            'hero' => $hero,
+        ]);
     }
 
     /**
@@ -46,7 +51,13 @@ class PageController extends Controller
 
         $categories = Category::getByContentType('quantum');
 
-        return view('quantum', compact('contentItems', 'categories', 'selectedCategory'));
+        $banner = $this->getBannerData('quantum', [
+            'title' => __('Quantum'),
+            'description' => __('Securing chip-to-cloud in Quantum era.'),
+            'image_url' => asset('images/quantum.jpeg'),
+        ]);
+
+        return view('quantum', compact('contentItems', 'categories', 'selectedCategory', 'banner'));
     }
 
     /**
@@ -74,7 +85,13 @@ class PageController extends Controller
 
         $categories = Category::getByContentType('services');
 
-        return view('services', compact('contentItems', 'categories', 'selectedCategory'));
+        $banner = $this->getBannerData('services', [
+            'title' => __('Services'),
+            'description' => __('Comprehensive security, safety, and SDV services for OEMs and Tier-1s.'),
+            'image_url' => asset('images/service.png'),
+        ]);
+
+        return view('services', compact('contentItems', 'categories', 'selectedCategory', 'banner'));
     }
 
     /**
@@ -102,7 +119,13 @@ class PageController extends Controller
 
         $categories = Category::getByContentType('products');
 
-        return view('products', compact('contentItems', 'categories', 'selectedCategory'));
+        $banner = $this->getBannerData('products', [
+            'title' => __('Products'),
+            'description' => __('Explore our productized accelerators for SDV, cybersecurity, and OTA.'),
+            'image_url' => asset('images/products.jpeg'),
+        ]);
+
+        return view('products', compact('contentItems', 'categories', 'selectedCategory', 'banner'));
     }
 
     /**
@@ -164,7 +187,13 @@ class PageController extends Controller
 
         $categories = Category::getByContentType('training');
 
-        return view('training', compact('trainings', 'categories', 'selectedCategory'));
+        $banner = $this->getBannerData('training', [
+            'title' => __('Training'),
+            'description' => __('Hands-on trainings in cybersecurity, functional safety, and ASPICE.'),
+            'image_url' => asset('images/training.jpeg'),
+        ]);
+
+        return view('training', compact('trainings', 'categories', 'selectedCategory', 'banner'));
     }
 
     /**
@@ -179,7 +208,13 @@ class PageController extends Controller
             ->orderByDesc('created_at')
             ->get();
 
-        return view('blog', compact('blogs'));
+        $banner = $this->getBannerData('blog', [
+            'title' => __('Blog'),
+            'description' => __('Insights and updates on SDV, cybersecurity, and engineering excellence.'),
+            'image_url' => asset('images/blog.jpeg'),
+        ]);
+
+        return view('blog', compact('blogs', 'banner'));
     }
 
     /**
@@ -236,7 +271,61 @@ class PageController extends Controller
      */
     public function contact()
     {
-        return view('contact');
+        $banner = $this->getBannerData('contact', [
+            'title' => __('Contact us'),
+            'description' => __('Get in touch for consultations, partnerships, and opportunities.'),
+            'image_url' => asset('images/contact.jpeg'),
+        ]);
+
+        return view('contact', compact('banner'));
+    }
+
+    protected function getHeroData(): array
+    {
+        $hero = HeroSection::firstWhere('type', 'home');
+
+        $defaults = [
+            'title' => __('Software Defined Vehicles'),
+            'description' => __("Innovative Tomorrow's Mobility"),
+            'image_url' => asset('images/main.png'),
+            'video_url' => asset('video/default-video.mp4'),
+            'cta_label' => __('Connect Us'),
+            'cta_href' => '#contact',
+        ];
+
+        if (!$hero) {
+            return $defaults;
+        }
+
+        return [
+            'title' => $hero->title ?: $defaults['title'],
+            'description' => $hero->description ?: $defaults['description'],
+            'image_url' => $hero->image_url ?: $defaults['image_url'],
+            'video_url' => $hero->video_url ?: $defaults['video_url'],
+            'cta_label' => $defaults['cta_label'],
+            'cta_href' => $defaults['cta_href'],
+        ];
+    }
+
+    protected function getBannerData(string $type, array $defaults = []): array
+    {
+        $defaults = array_merge([
+            'title' => '',
+            'description' => null,
+            'image_url' => asset('images/default.png'),
+        ], $defaults);
+
+        $banner = Banner::where('type', $type)->latest()->first();
+
+        if ($banner) {
+            $defaults['title'] = $banner->title ?: $defaults['title'];
+            $defaults['description'] = $banner->description ?: $defaults['description'];
+            $defaults['image_url'] = $banner->image_url ?: $defaults['image_url'];
+        }
+
+        $defaults['type'] = $type;
+
+        return $defaults;
     }
 }
 

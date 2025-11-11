@@ -1,9 +1,6 @@
 <x-layout title="Destrosolutions - Software Defined Vehicles">
     <x-navbar variant="complex" prefix="page" hideNavLogo="true"/>
-    <x-banner-page 
-        :title="__('Quantum')"
-        :description="__('Securing chip-to-cloud in Quantum era.')"
-        imagePath="images/quantum.jpeg"/>
+    <x-banner-page :banner="$banner"/>
    
     <!-- Quantum Intro Section -->
     <section class="relative w-full py-12 sm:py-24 bg-white" style="z-index: 1;">

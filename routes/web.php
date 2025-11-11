@@ -16,6 +16,7 @@ use App\Http\Controllers\Admin\PaymentSettingsController;
 use App\Http\Controllers\Admin\PaymentController as AdminPaymentController;
 use App\Http\Controllers\Admin\EnrollmentController as AdminEnrollmentController;
 use App\Http\Controllers\Admin\ContentController;
+use App\Http\Controllers\Admin\BannerController;
 use App\Http\Controllers\Admin\CategoryController;
 use App\Http\Controllers\Admin\ContactController as AdminContactController;
 use App\Http\Controllers\Admin\SeoController;
@@ -129,6 +130,10 @@ Route::prefix('admin')->name('admin.')->group(function () {
             Route::put('/{type}/{id}', [ContentController::class, 'update'])->name('update');
             Route::delete('/{type}/{id}', [ContentController::class, 'destroy'])->name('destroy');
         });
+
+        // Banners & Hero Section
+        Route::resource('banners', BannerController::class)->except(['create', 'edit', 'show']);
+        Route::post('hero-section', [BannerController::class, 'saveHero'])->name('hero.save');
         
         // Contact Messages Routes
         Route::resource('contacts', AdminContactController::class)->except(['create', 'edit']);

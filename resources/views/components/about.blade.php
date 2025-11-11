@@ -49,7 +49,7 @@
                     @foreach($slides as $index => $slide)
                         <div class="about-slide absolute inset-0 {{ $index === 0 ? 'active' : '' }}" data-slide-index="{{ $index }}" id="slide-{{ $index }}">
                             <img 
-                                src="{{ str_starts_with($slide['image'], 'http') ? $slide['image'] : asset($slide['image']) }}" 
+                                src="{{ str_starts_with($slide['image'], 'http') ? $slide['image'] : asset($slide['image']) }}"
                                 alt="{{ $slide['title'] }}"
                                 id="slide-image-{{ $index }}"
                                 class="w-full h-full object-cover transition-transform duration-700"

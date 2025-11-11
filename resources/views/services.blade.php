@@ -1,9 +1,6 @@
 <x-layout title="Destrosolutions - Services">
     <x-navbar variant="complex" prefix="page" hideNavLogo="true"/>
-    <x-banner-page 
-        :title="__('Services')" 
-        :description="__('Comprehensive security, safety, and SDV services for OEMs and Tier-1s.')"
-        imagePath="images/service.png"/>
+    <x-banner-page :banner="$banner"/>
     
     <!-- Services Intro Section -->
     <section class="relative w-full py-12 md:py-16 lg:py-20 bg-white">
