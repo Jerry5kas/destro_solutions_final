@@ -47,4 +47,12 @@ return [
         'webhook_secret' => env('RAZORPAY_WEBHOOK_SECRET'),
     ],
 
+    'translation' => [
+        'provider' => env('TRANSLATION_PROVIDER', 'null'),
+        'deepl' => [
+            'api_key' => env('DEEPL_API_KEY'),
+            'base_url' => env('DEEPL_BASE_URL', 'https://api-free.deepl.com'),
+        ],
+    ],
+
 ];

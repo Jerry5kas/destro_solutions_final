@@ -7,17 +7,22 @@
             <div class="card-header">
                 <div>
                     <h2 class="card-title">Revenue</h2>
-                    <p class="card-subtitle">Sales from {{ date('1-12 M, Y') }}</p>
+                    <p class="card-subtitle">Sales from {{ $last12MonthsStart }}</p>
                 </div>
-                <a href="#" class="card-action">View Report</a>
+                <a href="{{ route('admin.payments.index') }}" class="card-action">View Report</a>
             </div>
-            <div class="revenue-value">${{ number_format(7852000, 0, '.', ',') }}</div>
-            <div class="revenue-trend trend-up">
+            <div class="revenue-value">${{ number_format($totalRevenue ?? 0, 0, '.', ',') }}</div>
+            <div class="revenue-trend {{ ($revenueGrowth ?? 0) >= 0 ? 'trend-up' : 'trend-down' }}">
                 <svg width="16" height="16" fill="currentColor" viewBox="0 0 16 16">
+                    @if(($revenueGrowth ?? 0) >= 0)
                     <path d="M8 15A7 7 0 1 1 8 1a7 7 0 0 1 0 14zm0 1A8 8 0 1 0 8 0a8 8 0 0 0 0 16z"/>
                     <path d="M7.5 11.5 4.5 8.5 5.5 7.5 7.5 9.5 10.5 6.5 11.5 7.5 7.5 11.5z"/>
+                    @else
+                    <path d="M8 15A7 7 0 1 1 8 1a7 7 0 0 1 0 14zm0 1A8 8 0 1 0 8 0a8 8 0 0 0 0 16z"/>
+                    <path d="M7.5 4.5 4.5 7.5 5.5 8.5 7.5 6.5 10.5 9.5 11.5 8.5 7.5 4.5z"/>
+                    @endif
                 </svg>
-                <span>2.1% vs last week</span>
+                <span>{{ number_format(abs($revenueGrowth ?? 0), 1) }}% vs previous period</span>
             </div>
             <div class="chart-container">
                 <canvas id="revenueChart"></canvas>
@@ -28,10 +33,10 @@
         <div class="dashboard-card order-time-card">
             <div class="card-header">
                 <div>
-                    <h2 class="card-title">Order Time</h2>
-                    <p class="card-subtitle">From {{ date('1-6 M, Y') }}</p>
+                    <h2 class="card-title">Enrollment Time</h2>
+                    <p class="card-subtitle">From {{ $last6MonthsStart ?? date('1-6 M, Y') }}</p>
                 </div>
-                <a href="#" class="card-action">View Report</a>
+                <a href="{{ route('admin.enrollments.index') }}" class="card-action">View Report</a>
             </div>
             <div class="donut-chart-container">
                 <canvas id="orderTimeChart"></canvas>
@@ -39,98 +44,70 @@
             <div class="chart-legend">
                 <div class="legend-item">
                     <div class="legend-dot" style="background: #0D0DE0;"></div>
-                    <span>Afternoon 40%</span>
+                    <span>Afternoon {{ $afternoonPercent ?? 40 }}%</span>
                 </div>
                 <div class="legend-item">
                     <div class="legend-dot" style="background: #6366f1;"></div>
-                    <span>Evening 32%</span>
+                    <span>Evening {{ $eveningPercent ?? 32 }}%</span>
                 </div>
                 <div class="legend-item">
                     <div class="legend-dot" style="background: #93c5fd;"></div>
-                    <span>Morning 28%</span>
+                    <span>Morning {{ $morningPercent ?? 28 }}%</span>
                 </div>
             </div>
         </div>
         
-        <!-- Your Rating Card -->
+        <!-- System Status Card -->
         <div class="dashboard-card rating-card">
-            <h2 class="card-title">Your Rating</h2>
-            <p style="font-size: 0.875rem; color: #6b7280; margin-bottom: 1rem;">Customer satisfaction metrics</p>
+            <h2 class="card-title">System Status</h2>
+            <p style="font-size: 0.875rem; color: #6b7280; margin-bottom: 1rem;">Content and user metrics</p>
             <div class="rating-charts">
                 <div class="rating-item">
                     <div class="rating-circle">
-                        <canvas id="ratingHygiene"></canvas>
-                        <div class="rating-value">85%</div>
+                        <canvas id="ratingContent"></canvas>
+                        <div class="rating-value">{{ $contentItemPercentage ?? 0 }}%</div>
                     </div>
-                    <div class="rating-label">Hygiene</div>
+                    <div class="rating-label">Active Content</div>
                 </div>
                 <div class="rating-item">
                     <div class="rating-circle">
-                        <canvas id="ratingTaste"></canvas>
-                        <div class="rating-value">88%</div>
+                        <canvas id="ratingUsers"></canvas>
+                        <div class="rating-value">{{ $userPercentage ?? 0 }}%</div>
                     </div>
-                    <div class="rating-label">Service Quality</div>
+                    <div class="rating-label">Active Users</div>
                 </div>
                 <div class="rating-item">
                     <div class="rating-circle">
-                        <canvas id="ratingPackaging"></canvas>
-                        <div class="rating-value">92%</div>
+                        <canvas id="ratingContacts"></canvas>
+                        <div class="rating-value">{{ $contactPercentage ?? 0 }}%</div>
                     </div>
-                    <div class="rating-label">Customer Support</div>
+                    <div class="rating-label">Processed Contacts</div>
                 </div>
             </div>
         </div>
         
-        <!-- Most Ordered Card -->
+        <!-- Most Popular Trainings Card -->
         <div class="dashboard-card most-ordered-card">
-            <h2 class="card-title">Most Popular Services</h2>
-            <p style="font-size: 0.875rem; color: #6b7280; margin-bottom: 1rem;">Top performing services</p>
+            <h2 class="card-title">Most Popular Trainings</h2>
+            <p style="font-size: 0.875rem; color: #6b7280; margin-bottom: 1rem;">Top performing trainings</p>
             <div class="ordered-list">
+                @forelse($popularItems ?? [] as $item)
                 <div class="ordered-item">
                     <div class="ordered-icon">
                         <svg width="20" height="20" fill="currentColor" viewBox="0 0 20 20">
-                            <path d="M9 2a1 1 0 000 2h2a1 1 0 100-2H9z"/>
-                            <path fill-rule="evenodd" d="M4 5a2 2 0 012-2 3 3 0 003 3h2a3 3 0 003-3 2 2 0 012 2v11a2 2 0 01-2 2H6a2 2 0 01-2-2V5zm3 4a1 1 0 000 2h.01a1 1 0 100-2H7zm3 0a1 1 0 000 2h3a1 1 0 100-2h-3zm-3 4a1 1 0 100 2h.01a1 1 0 100-2H7zm3 0a1 1 0 100 2h3a1 1 0 100-2h-3z" clip-rule="evenodd"/>
+                            <path d="M10.394 2.08a1 1 0 00-.788 0l-7 3a1 1 0 000 1.84L5.25 8.051a.999.999 0 01.356-.257l4-1.714a1 1 0 11.788 1.838L7.667 9.088l1.94.831a1 1 0 00.787 0l7-3a1 1 0 000-1.838l-7-3zM3.31 9.397L5 10.12v4.102a8.969 8.969 0 00-1.05-.174 1 1 0 01-.89-.89 11.115 11.115 0 01.25-3.762zM9.3 16.573A9.026 9.026 0 007 14.935v-3.957l1.818.78a3 3 0 002.364 0l5.508-2.361a11.026 11.026 0 01.25 3.762 1 1 0 01-.89.89 8.968 8.968 0 00-5.35 2.524 1 1 0 01-1.4 0zM6 18a1 1 0 001-1v-2.065a8.935 8.935 0 00-2-.712V17a1 1 0 001 1z"/>
                         </svg>
                     </div>
                     <div class="ordered-info">
-                        <div class="ordered-name">Cybersecurity Services</div>
-                        <div class="ordered-price">$45,000</div>
+                        <div class="ordered-name">{{ strlen($item['title']) > 30 ? substr($item['title'], 0, 30) . '...' : $item['title'] }}</div>
+                        <div class="ordered-price">{{ $item['formatted_price'] ?? '$0' }} ({{ $item['enrollments_count'] ?? 0 }} enrollments)</div>
                     </div>
                 </div>
-                <div class="ordered-item">
-                    <div class="ordered-icon">
-                        <svg width="20" height="20" fill="currentColor" viewBox="0 0 20 20">
-                            <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/>
-                        </svg>
-                    </div>
-                    <div class="ordered-info">
-                        <div class="ordered-name">Functional Safety</div>
-                        <div class="ordered-price">$75,000</div>
-                    </div>
+                @empty
+                <div style="padding: 1rem; text-align: center; color: #6b7280; font-size: 0.875rem;">
+                    No training enrollments yet
                 </div>
-                <div class="ordered-item">
-                    <div class="ordered-icon">
-                        <svg width="20" height="20" fill="currentColor" viewBox="0 0 20 20">
-                            <path d="M7 3a1 1 0 000 2h6a1 1 0 100-2H7zM4 7a1 1 0 011-1h10a1 1 0 110 2H5a1 1 0 01-1-1zM2 11a2 2 0 012-2h12a2 2 0 012 2v4a2 2 0 01-2 2H4a2 2 0 01-2-2v-4z"/>
-                        </svg>
-                    </div>
-                    <div class="ordered-info">
-                        <div class="ordered-name">Software Update Management</div>
-                        <div class="ordered-price">$45,000</div>
-                    </div>
-                </div>
-                <div class="ordered-item">
-                    <div class="ordered-icon">
-                        <svg width="20" height="20" fill="currentColor" viewBox="0 0 20 20">
-                            <path fill-rule="evenodd" d="M6 2a1 1 0 00-1 1v1H4a2 2 0 00-2 2v10a2 2 0 002 2h12a2 2 0 002-2V6a2 2 0 00-2-2h-1V3a1 1 0 10-2 0v1H7V3a1 1 0 00-1-1zm0 5a1 1 0 000 2h8a1 1 0 100-2H6z" clip-rule="evenodd"/>
-                        </svg>
-                    </div>
-                    <div class="ordered-info">
-                        <div class="ordered-name">ASPICE Consulting</div>
-                        <div class="ordered-price">$45,000</div>
-                    </div>
-                </div>
+                @endforelse
             </div>
         </div>
         
@@ -138,18 +115,23 @@
         <div class="dashboard-card order-card">
             <div class="card-header">
                 <div>
-                    <h2 class="card-title">Total Orders</h2>
-                    <p class="card-subtitle">Sales from {{ date('1-6 M, Y') }}</p>
+                    <h2 class="card-title">Total Enrollments</h2>
+                    <p class="card-subtitle">From {{ $last6MonthsStart ?? date('1-6 M, Y') }}</p>
                 </div>
-                <a href="#" class="card-action">View Report</a>
+                <a href="{{ route('admin.enrollments.index') }}" class="card-action">View Report</a>
             </div>
-            <div class="order-value">{{ number_format(\App\Models\User::count() * 128, 0, '.', ',') }}</div>
-            <div class="revenue-trend trend-down">
+            <div class="order-value">{{ number_format($totalOrders ?? 0, 0, '.', ',') }}</div>
+            <div class="revenue-trend {{ ($ordersGrowth ?? 0) >= 0 ? 'trend-up' : 'trend-down' }}">
                 <svg width="16" height="16" fill="currentColor" viewBox="0 0 16 16">
+                    @if(($ordersGrowth ?? 0) >= 0)
+                    <path d="M8 15A7 7 0 1 1 8 1a7 7 0 0 1 0 14zm0 1A8 8 0 1 0 8 0a8 8 0 0 0 0 16z"/>
+                    <path d="M7.5 11.5 4.5 8.5 5.5 7.5 7.5 9.5 10.5 6.5 11.5 7.5 7.5 11.5z"/>
+                    @else
                     <path d="M8 15A7 7 0 1 1 8 1a7 7 0 0 1 0 14zm0 1A8 8 0 1 0 8 0a8 8 0 0 0 0 16z"/>
                     <path d="M7.5 4.5 4.5 7.5 5.5 8.5 7.5 6.5 10.5 9.5 11.5 8.5 7.5 4.5z"/>
+                    @endif
                 </svg>
-                <span>2.1% vs last week</span>
+                <span>{{ number_format(abs($ordersGrowth ?? 0), 1) }}% vs previous period</span>
             </div>
             <div class="chart-container">
                 <canvas id="orderChart"></canvas>
@@ -475,20 +457,29 @@
     <script>
         // Revenue Chart (Bar Chart)
         const revenueCtx = document.getElementById('revenueChart').getContext('2d');
+        const revenueData = @json($revenueChartData ?? array_fill(0, 12, 0));
+        const previousRevenueData = @json($previousRevenueChartData ?? array_fill(0, 12, 0));
+        const monthLabels = [];
+        for (let i = 11; i >= 0; i--) {
+            const date = new Date();
+            date.setMonth(date.getMonth() - i);
+            monthLabels.push(('0' + (date.getMonth() + 1)).slice(-2));
+        }
+        
         new Chart(revenueCtx, {
             type: 'bar',
             data: {
-                labels: ['01', '02', '03', '04', '05', '06', '07', '08', '09', '10', '11', '12'],
+                labels: monthLabels,
                 datasets: [
                     {
-                        label: 'Last 6 days',
-                        data: [120, 190, 300, 250, 400, 350, 280, 320, 380, 300, 420, 450],
+                        label: 'Current Period',
+                        data: revenueData,
                         backgroundColor: '#0D0DE0',
                         borderRadius: 6
                     },
                     {
-                        label: 'Last Week',
-                        data: [100, 150, 250, 200, 300, 280, 220, 280, 320, 250, 350, 380],
+                        label: 'Previous Period',
+                        data: previousRevenueData,
                         backgroundColor: '#e5e7eb',
                         borderRadius: 6
                     }
@@ -528,7 +519,7 @@
             data: {
                 labels: ['Afternoon', 'Evening', 'Morning'],
                 datasets: [{
-                    data: [40, 32, 28],
+                    data: [{{ $afternoonPercent ?? 40 }}, {{ $eveningPercent ?? 32 }}, {{ $morningPercent ?? 28 }}],
                     backgroundColor: ['#0D0DE0', '#6366f1', '#93c5fd'],
                     borderWidth: 0
                 }]
@@ -569,20 +560,29 @@
             });
         }
         
-        createRatingChart('ratingHygiene', 85, '#8b5cf6');
-        createRatingChart('ratingTaste', 88, '#f59e0b');
-        createRatingChart('ratingPackaging', 92, '#0D0DE0');
+        createRatingChart('ratingContent', {{ $contentItemPercentage ?? 0 }}, '#8b5cf6');
+        createRatingChart('ratingUsers', {{ $userPercentage ?? 0 }}, '#f59e0b');
+        createRatingChart('ratingContacts', {{ $contactPercentage ?? 0 }}, '#0D0DE0');
         
         // Order Chart (Line Chart)
         const orderCtx = document.getElementById('orderChart').getContext('2d');
+        const ordersData = @json($ordersChartData ?? array_fill(0, 6, 0));
+        const previousOrdersData = @json($previousOrdersChartData ?? array_fill(0, 6, 0));
+        const monthLabelsOrders = [];
+        for (let i = 5; i >= 0; i--) {
+            const date = new Date();
+            date.setMonth(date.getMonth() - i);
+            monthLabelsOrders.push(('0' + (date.getMonth() + 1)).slice(-2));
+        }
+        
         new Chart(orderCtx, {
             type: 'line',
             data: {
-                labels: ['01', '02', '03', '04', '05', '06'],
+                labels: monthLabelsOrders,
                 datasets: [
                     {
-                        label: 'Last 6 days',
-                        data: [120, 190, 300, 250, 400, 350],
+                        label: 'Current Period',
+                        data: ordersData,
                         borderColor: '#0D0DE0',
                         backgroundColor: 'rgba(13, 13, 224, 0.1)',
                         tension: 0.4,
@@ -590,8 +590,8 @@
                         borderWidth: 2
                     },
                     {
-                        label: 'Last Week',
-                        data: [100, 150, 250, 200, 300, 280],
+                        label: 'Previous Period',
+                        data: previousOrdersData,
                         borderColor: '#e5e7eb',
                         backgroundColor: 'rgba(229, 231, 235, 0.1)',
                         tension: 0.4,
@@ -629,3 +629,5 @@
     </script>
     @endpush
 </x-admin-layout>
+
+

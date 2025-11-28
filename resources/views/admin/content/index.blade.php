@@ -14,9 +14,15 @@
 <x-admin-layout title="{{ $typeLabel }} Management - Destrosolutions">
     <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 2rem;">
         <h1 class="page-title">{{ $typeLabel }} Management</h1>
-        <button onclick="openCreateModal()" style="padding: 0.75rem 1.5rem; background: #0D0DE0; color: white; border: none; border-radius: 10px; font-weight: 500; cursor: pointer; font-family: 'Montserrat', sans-serif; transition: all 0.2s ease;">
-            + Add New
-        </button>
+        @if($type === 'blog')
+            <a href="{{ route('admin.content.blog.create') }}" style="padding: 0.75rem 1.5rem; background: #0D0DE0; color: white; border: none; border-radius: 10px; font-weight: 500; cursor: pointer; font-family: 'Montserrat', sans-serif; transition: all 0.2s ease; text-decoration: none; display: inline-block;">
+                + Add New Blog Post
+            </a>
+        @else
+            <button onclick="openCreateModal()" style="padding: 0.75rem 1.5rem; background: #0D0DE0; color: white; border: none; border-radius: 10px; font-weight: 500; cursor: pointer; font-family: 'Montserrat', sans-serif; transition: all 0.2s ease;">
+                + Add New
+            </button>
+        @endif
     </div>
     
     @if(session('success'))
@@ -25,10 +31,11 @@
         </div>
     @endif
     
-    <div class="dashboard-card" style="padding: 0; overflow: hidden;">
-        <div style="padding: 1.5rem; border-bottom: 1px solid #e5e7eb;">
-            <div style="display: grid; grid-template-columns: 40px 2fr 1.5fr 1fr 120px 100px; gap: 1.5rem; align-items: center;">
+    <div class="dashboard-card" style="padding: 0; overflow: hidden; max-height: calc(100vh - 200px); display: flex; flex-direction: column;">
+        <div style="padding: 1.5rem; border-bottom: 1px solid #e5e7eb; flex-shrink: 0;">
+            <div class="table-header" style="display: grid; grid-template-columns: 40px 50px minmax(200px, 2fr) minmax(150px, 1.5fr) minmax(100px, 1fr) 120px 100px; gap: 1rem; align-items: center;">
                 <div></div>
+                <div style="font-weight: 600; color: #374151; font-size: 0.875rem;"></div>
                 <div style="font-weight: 600; color: #374151; font-size: 0.875rem;">Title</div>
                 <div style="font-weight: 600; color: #374151; font-size: 0.875rem;">Description</div>
                 <div style="font-weight: 600; color: #374151; font-size: 0.875rem;">Category</div>
@@ -37,32 +44,41 @@
             </div>
         </div>
         
-        <div>
+        <div style="overflow-y: auto; flex: 1; min-height: 0;">
             @forelse($items as $item)
-                <div class="content-row" style="padding: 1.25rem 1.5rem; border-bottom: 1px solid #f3f4f6; display: grid; grid-template-columns: 40px 2fr 1.5fr 1fr 120px 100px; gap: 1.5rem; align-items: center; transition: background 0.2s ease;">
-                    <div>
-                        <input type="checkbox" class="row-checkbox" style="width: 18px; height: 18px; cursor: pointer; accent-color: #0D0DE0; border-radius: 4px;">
-                    </div>
-                    
-                    <div style="display: flex; align-items: center; gap: 1rem;">
-                        <div style="width: 48px; height: 48px; border-radius: 50%; overflow: hidden; background: #f3f4f6; display: flex; align-items: center; justify-content: center; flex-shrink: 0;">
-                            @if($item->image)
-                                <img src="{{ $item->image_url }}" alt="{{ $item->title }}" style="width: 100%; height: 100%; object-fit: cover;">
-                            @else
-                                <div style="width: 100%; height: 100%; background: linear-gradient(135deg, #0D0DE0 0%, #6366f1 100%); display: flex; align-items: center; justify-content: center; color: white; font-weight: 600; font-size: 1.25rem;">
-                                    {{ strtoupper(substr($item->title, 0, 1)) }}
-                                </div>
-                            @endif
+                <div class="content-row-wrapper" data-item-id="{{ $item->id }}">
+                    <div class="content-row" style="padding: 1rem 1.5rem; border-bottom: 1px solid #f3f4f6; display: grid; grid-template-columns: 40px 50px minmax(200px, 2fr) minmax(150px, 1.5fr) minmax(100px, 1fr) 120px 100px; gap: 1rem; align-items: center; transition: background 0.2s ease;">
+                        <div>
+                            <input type="checkbox" class="row-checkbox" style="width: 18px; height: 18px; cursor: pointer; accent-color: #0D0DE0; border-radius: 4px;">
                         </div>
-                        <div style="min-width: 0;">
-                            <div style="font-weight: 500; color: #111827; margin-bottom: 0.25rem; font-size: 0.9375rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">{{ $item->title }}</div>
-                            <div style="font-size: 0.8125rem; color: #6b7280;">Added: {{ $item->created_at->format('m/d/Y') }}</div>
+                        
+                        <div style="display: flex; align-items: center; justify-content: center;">
+                            <button type="button" class="expand-toggle-btn" onclick="toggleRowExpand({{ $item->id }})" style="padding: 0.25rem; background: transparent; border: none; color: #6b7280; cursor: pointer; border-radius: 4px; transition: all 0.2s ease;" title="Expand/Collapse">
+                                <svg class="expand-icon" width="16" height="16" fill="none" stroke="currentColor" viewBox="0 0 24 24" style="transition: transform 0.2s ease;">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/>
+                                </svg>
+                            </button>
                         </div>
-                    </div>
-                    
-                    <div style="font-weight: 400; color: #6b7280; font-size: 0.875rem; line-height: 1.5; overflow: hidden; text-overflow: ellipsis; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical;">
-                        {{ Str::limit($item->description ?? 'No description', 100) }}
-                    </div>
+                        
+                        <div style="display: flex; align-items: center; gap: 1rem; min-width: 0; flex: 1;">
+                            <div style="width: 48px; height: 48px; border-radius: 50%; overflow: hidden; background: #f3f4f6; display: flex; align-items: center; justify-content: center; flex-shrink: 0;">
+                                @if($item->image)
+                                    <img src="{{ $item->image_url }}" alt="{{ $item->title }}" style="width: 100%; height: 100%; object-fit: cover;">
+                                @else
+                                    <div style="width: 100%; height: 100%; background: linear-gradient(135deg, #0D0DE0 0%, #6366f1 100%); display: flex; align-items: center; justify-content: center; color: white; font-weight: 600; font-size: 1.25rem;">
+                                        {{ strtoupper(substr($item->title, 0, 1)) }}
+                                    </div>
+                                @endif
+                            </div>
+                            <div style="min-width: 0; flex: 1; overflow: hidden;">
+                                <div style="font-weight: 500; color: #111827; margin-bottom: 0.25rem; font-size: 0.9375rem; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;" title="{{ $item->title }}">{{ $item->title }}</div>
+                                <div style="font-size: 0.8125rem; color: #6b7280;">Added: {{ $item->created_at->format('m/d/Y') }}</div>
+                            </div>
+                        </div>
+                        
+                        <div class="description-preview" style="font-weight: 400; color: #6b7280; font-size: 0.875rem; line-height: 1.5; overflow: hidden; text-overflow: ellipsis; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical;">
+                            {{ Str::limit($item->description ?? 'No description', 100) }}
+                        </div>
                     
                     <div style="font-weight: 500; color: #111827; font-size: 0.9375rem;">
                         {{ $item->category->title ?? 'N/A' }}
@@ -87,21 +103,63 @@
                         @endif
                     </div>
                     
-                    <div style="display: flex; align-items: center; gap: 0.5rem; justify-content: center;">
-                        <button onclick="openEditModal({{ $item->id }})" style="padding: 0.5rem; background: transparent; border: none; color: #0D0DE0; cursor: pointer; border-radius: 6px; transition: all 0.2s ease;" title="Edit">
-                            <svg width="18" height="18" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/>
-                            </svg>
-                        </button>
-                        <form action="{{ route('admin.content.destroy', [$type, $item->id]) }}" method="POST" style="display: inline;" onsubmit="return confirm('Are you sure you want to delete this item?');">
-                            @csrf
-                            @method('DELETE')
-                            <button type="submit" style="padding: 0.5rem; background: transparent; border: none; color: #ef4444; cursor: pointer; border-radius: 6px; transition: all 0.2s ease;" title="Delete">
-                                <svg width="18" height="18" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
-                                </svg>
-                            </button>
-                        </form>
+                        <div style="display: flex; align-items: center; gap: 0.5rem; justify-content: center;">
+                            @if($type === 'blog')
+                                <a href="{{ route('admin.content.blog.edit', $item->id) }}" style="padding: 0.5rem; background: transparent; border: none; color: #0D0DE0; cursor: pointer; border-radius: 6px; transition: all 0.2s ease; text-decoration: none; display: inline-flex; align-items: center; justify-content: center;" title="Edit">
+                                    <svg width="18" height="18" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/>
+                                    </svg>
+                                </a>
+                            @else
+                                <button onclick="openEditModal({{ $item->id }})" style="padding: 0.5rem; background: transparent; border: none; color: #0D0DE0; cursor: pointer; border-radius: 6px; transition: all 0.2s ease;" title="Edit">
+                                    <svg width="18" height="18" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/>
+                                    </svg>
+                                </button>
+                            @endif
+                            <form action="{{ route('admin.content.destroy', [$type, $item->id]) }}" method="POST" style="display: inline;" onsubmit="return confirm('Are you sure you want to delete this item?');">
+                                @csrf
+                                @method('DELETE')
+                                <button type="submit" style="padding: 0.5rem; background: transparent; border: none; color: #ef4444; cursor: pointer; border-radius: 6px; transition: all 0.2s ease;" title="Delete">
+                                    <svg width="18" height="18" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+                                    </svg>
+                                </button>
+                            </form>
+                        </div>
+                    </div>
+                    
+                    <!-- Expandable Content Area -->
+                    <div class="expandable-content" id="expandable-{{ $item->id }}" style="display: none; padding: 1.5rem; background: #f9fafb; border-bottom: 1px solid #f3f4f6; max-height: 400px; overflow-y: auto;">
+                        <div class="expandable-grid" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 1.5rem;">
+                            <div>
+                                <h4 style="font-weight: 600; color: #374151; margin-bottom: 0.75rem; font-size: 0.875rem;">Full Description</h4>
+                                <div style="max-height: 300px; overflow-y: auto; padding: 1rem; background: white; border-radius: 8px; border: 1px solid #e5e7eb; font-size: 0.875rem; color: #6b7280; line-height: 1.6; word-wrap: break-word;">
+                                    {{ $item->description ?? 'No description available' }}
+                                </div>
+                            </div>
+                            @if($type === 'blog' && !empty($item->editor_content))
+                                <div>
+                                    <h4 style="font-weight: 600; color: #374151; margin-bottom: 0.75rem; font-size: 0.875rem;">Editor Content Preview</h4>
+                                    <div style="max-height: 300px; overflow-y: auto; padding: 1rem; background: white; border-radius: 8px; border: 1px solid #e5e7eb; font-size: 0.875rem; color: #6b7280; line-height: 1.6; word-wrap: break-word;">
+                                        @php
+                                            $editorContent = is_array($item->editor_content) ? $item->editor_content : [];
+                                            $previewText = '';
+                                            foreach($editorContent as $block) {
+                                                if(isset($block['content'])) {
+                                                    if(is_array($block['content'])) {
+                                                        $previewText .= implode(', ', $block['content']) . ' ';
+                                                    } else {
+                                                        $previewText .= $block['content'] . ' ';
+                                                    }
+                                                }
+                                            }
+                                        @endphp
+                                        {{ Str::limit($previewText ?: 'No editor content', 500) }}
+                                    </div>
+                                </div>
+                            @endif
+                        </div>
                     </div>
                 </div>
             @empty
@@ -212,8 +270,8 @@
     @endpush
     
     <!-- Create/Edit Modal -->
-    <div id="contentModal" style="display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0, 0, 0, 0.5); z-index: 10000; align-items: center; justify-content: center; padding: 1rem;">
-        <div style="background: white; border-radius: 16px; max-width: 600px; width: 100%; max-height: 90vh; overflow-y: auto; box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);">
+    <div id="contentModal" style="display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0, 0, 0, 0.5); z-index: 10000; align-items: center; justify-content: center; padding: 1rem; overflow-y: auto;">
+        <div style="background: white; border-radius: 16px; max-width: {{ $type === 'blog' ? '1200px' : '600px' }}; width: 100%; max-height: 90vh; overflow-y: auto; box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3); margin: auto; display: flex; flex-direction: column;">
             <div style="padding: 1.5rem; border-bottom: 1px solid #e5e7eb; display: flex; justify-content: space-between; align-items: center;">
                 <h2 style="font-size: 1.5rem; font-weight: 600; color: #111827;" id="modalTitle">Add New {{ $typeLabel }}</h2>
                 <button onclick="closeModal()" style="padding: 0.5rem; background: transparent; border: none; color: #6b7280; cursor: pointer; border-radius: 6px;">
@@ -223,7 +281,7 @@
                 </button>
             </div>
             
-            <form id="contentForm" method="POST" enctype="multipart/form-data" style="padding: 1.5rem;">
+            <form id="contentForm" method="POST" enctype="multipart/form-data" style="padding: 1.5rem; overflow-y: auto; flex: 1; min-height: 0;">
                 @csrf
                 <div id="formMethod"></div>
                 
@@ -232,10 +290,21 @@
                     <input type="text" name="title" id="title" required style="width: 100%; padding: 0.75rem; border: 1px solid #e5e7eb; border-radius: 8px; font-family: 'Montserrat', sans-serif; font-size: 0.9375rem;">
                 </div>
                 
-                <div style="margin-bottom: 1.5rem;">
-                    <label style="display: block; font-weight: 500; color: #374151; margin-bottom: 0.5rem; font-size: 0.875rem;">Description</label>
-                    <textarea name="description" id="description" rows="4" style="width: 100%; padding: 0.75rem; border: 1px solid #e5e7eb; border-radius: 8px; font-family: 'Montserrat', sans-serif; font-size: 0.9375rem; resize: vertical;"></textarea>
-                </div>
+                @if($type === 'blog')
+                    <div style="margin-bottom: 1.5rem;">
+                        <label style="display: block; font-weight: 500; color: #374151; margin-bottom: 0.5rem; font-size: 0.875rem;">Content Editor</label>
+                        <x-custom-text-editor name="editor_content" id="blog-editor" :value="old('editor_content')" />
+                    </div>
+                    <div style="margin-bottom: 1.5rem;">
+                        <label style="display: block; font-weight: 500; color: #374151; margin-bottom: 0.5rem; font-size: 0.875rem;">Short Description (for listing)</label>
+                        <textarea name="description" id="description" rows="3" placeholder="Brief description for blog listing page" style="width: 100%; padding: 0.75rem; border: 1px solid #e5e7eb; border-radius: 8px; font-family: 'Montserrat', sans-serif; font-size: 0.9375rem; resize: vertical;"></textarea>
+                    </div>
+                @else
+                    <div style="margin-bottom: 1.5rem;">
+                        <label style="display: block; font-weight: 500; color: #374151; margin-bottom: 0.5rem; font-size: 0.875rem;">Description</label>
+                        <textarea name="description" id="description" rows="4" style="width: 100%; padding: 0.75rem; border: 1px solid #e5e7eb; border-radius: 8px; font-family: 'Montserrat', sans-serif; font-size: 0.9375rem; resize: vertical;"></textarea>
+                    </div>
+                @endif
                 
                 <div style="margin-bottom: 1.5rem;">
                     <label style="display: block; font-weight: 500; color: #374151; margin-bottom: 0.5rem; font-size: 0.875rem;">Category</label>
@@ -249,8 +318,8 @@
                 
                 <div style="margin-bottom: 1.5rem;">
                     <label style="display: block; font-weight: 500; color: #374151; margin-bottom: 0.5rem; font-size: 0.875rem;">Slug</label>
-                    <input type="text" name="slug" id="slug" style="width: 100%; padding: 0.75rem; border: 1px solid #e5e7eb; border-radius: 8px; font-family: 'Montserrat', sans-serif; font-size: 0.9375rem;">
-                    <small style="color: #6b7280; font-size: 0.75rem;">Leave empty to auto-generate from title</small>
+                    <input type="text" name="slug" id="slug" readonly style="width: 100%; padding: 0.75rem; border: 1px solid #e5e7eb; border-radius: 8px; font-family: 'Montserrat', sans-serif; font-size: 0.9375rem; background-color: #f9fafb; cursor: not-allowed;">
+                    <small style="color: #6b7280; font-size: 0.75rem;">Auto-generated from title</small>
                 </div>
                 
                 <div style="margin-bottom: 1.5rem;">
@@ -279,7 +348,13 @@
                 </div>
 
                 @if($type === 'training')
-                <div id="trainingFields" style="margin-top: 2rem; border-top: 1px solid #e5e7eb; padding-top: 1.5rem;">
+                <div style="margin-top: 2rem; border-top: 1px solid #e5e7eb; padding-top: 1.5rem;">
+                    <label style="display: inline-flex; align-items: center; gap: 0.5rem; font-size: 0.9375rem; font-weight: 600; color: #111827; margin-bottom: 1rem; cursor: pointer;">
+                        <input type="checkbox" name="has_training_details" id="has_training_details" style="width: 18px; height: 18px; accent-color: #0D0DE0; cursor: pointer;">
+                        <span>Training Details</span>
+                    </label>
+                </div>
+                <div id="trainingFields" style="margin-top: 1rem; display: none;">
                     <h3 style="font-size: 1rem; font-weight: 600; color: #111827; margin-bottom: 1rem;">Training Details</h3>
                     <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 1rem;">
                         <div>
@@ -410,6 +485,40 @@
         const itemsData = @json($items);
         const isTraining = '{{ $type }}' === 'training';
 
+        // Function to generate slug from title
+        function generateSlug(text) {
+            if (!text) return '';
+            return text
+                .toString()
+                .toLowerCase()
+                .trim()
+                .replace(/\s+/g, '-')           // Replace spaces with hyphens
+                .replace(/[^\w\-]+/g, '')       // Remove all non-word characters except hyphens
+                .replace(/\-\-+/g, '-')         // Replace multiple hyphens with single hyphen
+                .replace(/^-+/, '')             // Trim hyphens from start
+                .replace(/-+$/, '');            // Trim hyphens from end
+        }
+
+        // Auto-generate slug from title
+        function setupSlugGeneration() {
+            const titleInput = document.getElementById('title');
+            const slugInput = document.getElementById('slug');
+            
+            if (!titleInput || !slugInput) return;
+
+            // Generate slug as user types in the title field
+            titleInput.addEventListener('input', function() {
+                slugInput.value = generateSlug(this.value);
+            });
+
+            // Also trigger on paste
+            titleInput.addEventListener('paste', function() {
+                setTimeout(() => {
+                    slugInput.value = generateSlug(this.value);
+                }, 0);
+            });
+        }
+
         const trainingFieldIds = [
             'start_date',
             'end_date',
@@ -439,6 +548,14 @@
 
         function resetTrainingFields() {
             if (!isTraining) return;
+            const trainingCheckbox = document.getElementById('has_training_details');
+            const trainingFields = document.getElementById('trainingFields');
+            if (trainingCheckbox) {
+                trainingCheckbox.checked = false;
+            }
+            if (trainingFields) {
+                trainingFields.style.display = 'none';
+            }
             trainingFieldIds.forEach(id => {
                 const field = document.getElementById(id);
                 if (field) {
@@ -458,6 +575,37 @@
 
         function populateTrainingFields(item) {
             if (!isTraining || !item) return;
+
+            // Check if any training details exist
+            const hasTrainingDetails = !!(
+                item.start_date ||
+                item.end_date ||
+                item.enrollment_deadline ||
+                item.price ||
+                item.duration_days ||
+                item.duration_hours ||
+                item.session_count ||
+                item.session_length_minutes ||
+                item.max_students ||
+                item.delivery_mode ||
+                item.level ||
+                item.language ||
+                item.prerequisites ||
+                item.instructor_name ||
+                item.instructor_bio ||
+                item.outcomes ||
+                item.materials_provided ||
+                item.certification_details ||
+                item.is_enrollable ||
+                item.certification_available
+            );
+
+            const trainingCheckbox = document.getElementById('has_training_details');
+            const trainingFields = document.getElementById('trainingFields');
+            if (trainingCheckbox && trainingFields) {
+                trainingCheckbox.checked = hasTrainingDetails;
+                trainingFields.style.display = hasTrainingDetails ? 'block' : 'none';
+            }
 
             const setValue = (id, value) => {
                 const field = document.getElementById(id);
@@ -509,8 +657,15 @@
             document.getElementById('contentForm').action = '{{ route("admin.content.store", $type) }}';
             document.getElementById('formMethod').innerHTML = '';
             document.getElementById('contentForm').reset();
+            document.getElementById('slug').value = '';
             document.getElementById('imagePreview').innerHTML = '';
             resetTrainingFields();
+            @if($type === 'blog')
+            // Clear editor content when creating new blog
+            if (typeof window['updateEditorContent_blog-editor'] === 'function') {
+                window['updateEditorContent_blog-editor']([]);
+            }
+            @endif
             document.getElementById('contentModal').style.display = 'flex';
         }
         
@@ -523,12 +678,24 @@
             document.getElementById('contentForm').action = '{{ route("admin.content.update", [$type, ":id"]) }}'.replace(':id', id);
             document.getElementById('formMethod').innerHTML = '@method("PUT")';
             
-            document.getElementById('title').value = item.title || '';
-            document.getElementById('slug').value = item.slug || '';
+            const titleInput = document.getElementById('title');
+            const slugInput = document.getElementById('slug');
+            
+            titleInput.value = item.title || '';
+            // Preserve existing slug in edit mode - it will regenerate if user changes title
+            slugInput.value = item.slug || generateSlug(item.title || '');
+            
             document.getElementById('description').value = item.description || '';
             document.getElementById('category_id').value = item.category_id || '';
             document.getElementById('date').value = item.date || '';
             document.getElementById('status').value = item.status || 'active';
+            
+            @if($type === 'blog')
+            // Update editor content if editing blog
+            if (item.editor_content && typeof window['updateEditorContent_blog-editor'] === 'function') {
+                window['updateEditorContent_blog-editor'](item.editor_content);
+            }
+            @endif
             
             if (item.objective_list && item.objective_list.length > 0) {
                 document.getElementById('objective_list_text').value = item.objective_list.join('\n');
@@ -547,6 +714,34 @@
             }
             
             document.getElementById('contentModal').style.display = 'flex';
+        }
+        
+        function toggleRowExpand(itemId) {
+            const expandableContent = document.getElementById('expandable-' + itemId);
+            const expandIcon = document.querySelector(`[onclick="toggleRowExpand(${itemId})"] .expand-icon`);
+            const rowWrapper = document.querySelector(`.content-row-wrapper[data-item-id="${itemId}"]`);
+            
+            if (!expandableContent) return;
+            
+            const isExpanded = expandableContent.style.display !== 'none';
+            
+            if (isExpanded) {
+                expandableContent.style.display = 'none';
+                if (expandIcon) {
+                    expandIcon.style.transform = 'rotate(0deg)';
+                }
+                if (rowWrapper) {
+                    rowWrapper.style.backgroundColor = '';
+                }
+            } else {
+                expandableContent.style.display = 'block';
+                if (expandIcon) {
+                    expandIcon.style.transform = 'rotate(180deg)';
+                }
+                if (rowWrapper) {
+                    rowWrapper.style.backgroundColor = '#fafafa';
+                }
+            }
         }
         
         function closeModal() {
@@ -573,10 +768,207 @@
             }
         });
 
+        // Initialize slug generation
+        setupSlugGeneration();
+
         if (isTraining) {
             resetTrainingFields();
+            
+            // Toggle Training Details section visibility based on checkbox
+            const trainingCheckbox = document.getElementById('has_training_details');
+            const trainingFields = document.getElementById('trainingFields');
+            
+            if (trainingCheckbox && trainingFields) {
+                trainingCheckbox.addEventListener('change', function() {
+                    if (this.checked) {
+                        trainingFields.style.display = 'block';
+                    } else {
+                        trainingFields.style.display = 'none';
+                    }
+                });
+            }
         }
     </script>
+    
+    <style>
+        /* Table Container */
+        .dashboard-card {
+            position: relative;
+        }
+        
+        /* Expandable Row Styles */
+        .content-row-wrapper {
+            transition: background-color 0.2s ease;
+        }
+        
+        .content-row-wrapper:hover .content-row {
+            background-color: #fafafa;
+        }
+        
+        .content-row {
+            min-width: 0;
+        }
+        
+        .expand-toggle-btn {
+            transition: all 0.2s ease;
+        }
+        
+        .expand-toggle-btn:hover {
+            background-color: #f3f4f6 !important;
+            color: #0D0DE0 !important;
+        }
+        
+        .expandable-content {
+            animation: slideDown 0.3s ease-out;
+        }
+        
+        @keyframes slideDown {
+            from {
+                opacity: 0;
+                max-height: 0;
+                padding-top: 0;
+                padding-bottom: 0;
+            }
+            to {
+                opacity: 1;
+            }
+        }
+        
+        /* Scrollbar Styling */
+        .dashboard-card > div:last-child::-webkit-scrollbar,
+        .expandable-content::-webkit-scrollbar,
+        .editor-content::-webkit-scrollbar {
+            width: 8px;
+            height: 8px;
+        }
+        
+        .dashboard-card > div:last-child::-webkit-scrollbar-track,
+        .expandable-content::-webkit-scrollbar-track,
+        .editor-content::-webkit-scrollbar-track {
+            background: #f1f5f9;
+            border-radius: 4px;
+        }
+        
+        .dashboard-card > div:last-child::-webkit-scrollbar-thumb,
+        .expandable-content::-webkit-scrollbar-thumb,
+        .editor-content::-webkit-scrollbar-thumb {
+            background: #cbd5e1;
+            border-radius: 4px;
+        }
+        
+        .dashboard-card > div:last-child::-webkit-scrollbar-thumb:hover,
+        .expandable-content::-webkit-scrollbar-thumb:hover,
+        .editor-content::-webkit-scrollbar-thumb:hover {
+            background: #94a3b8;
+        }
+        
+        /* Scrollbar for Expandable Content Inner Divs */
+        .expandable-content div[style*="overflow-y: auto"]::-webkit-scrollbar {
+            width: 6px;
+        }
+        
+        .expandable-content div[style*="overflow-y: auto"]::-webkit-scrollbar-track {
+            background: #f1f5f9;
+            border-radius: 4px;
+        }
+        
+        .expandable-content div[style*="overflow-y: auto"]::-webkit-scrollbar-thumb {
+            background: #cbd5e1;
+            border-radius: 4px;
+        }
+        
+        .expandable-content div[style*="overflow-y: auto"]::-webkit-scrollbar-thumb:hover {
+            background: #94a3b8;
+        }
+        
+        /* Responsive Design */
+        @media (max-width: 1400px) {
+            .table-header,
+            .content-row {
+                grid-template-columns: 40px 50px minmax(180px, 2fr) minmax(120px, 1.5fr) minmax(80px, 1fr) 100px 90px !important;
+                gap: 0.75rem !important;
+            }
+        }
+        
+        @media (max-width: 1200px) {
+            .table-header,
+            .content-row {
+                grid-template-columns: 40px 50px minmax(150px, 2fr) minmax(100px, 1fr) 90px 80px !important;
+                gap: 0.5rem !important;
+            }
+            
+            .table-header > div:nth-child(4),
+            .content-row > div:nth-child(4) {
+                display: none;
+            }
+            
+            .expandable-grid {
+                grid-template-columns: 1fr !important;
+            }
+        }
+        
+        @media (max-width: 768px) {
+            .table-header,
+            .content-row {
+                grid-template-columns: 40px 50px 1fr 80px 70px !important;
+                gap: 0.5rem !important;
+                padding: 0.75rem 1rem !important;
+            }
+            
+            .table-header > div:nth-child(4),
+            .table-header > div:nth-child(5),
+            .content-row > div:nth-child(4),
+            .content-row > div:nth-child(5) {
+                display: none;
+            }
+            
+            .content-row > div:nth-child(3) {
+                min-width: 0;
+            }
+            
+            .content-row > div:nth-child(3) > div:first-child {
+                font-size: 0.875rem !important;
+            }
+            
+            .expandable-content {
+                padding: 1rem !important;
+                max-height: 300px !important;
+            }
+        }
+        
+        /* Text Overflow Handling */
+        .description-preview {
+            word-break: break-word;
+            overflow-wrap: break-word;
+        }
+        
+        .content-row > div {
+            min-width: 0;
+            overflow: hidden;
+        }
+        
+        /* Modal Responsive */
+        @media (max-width: 768px) {
+            #contentModal > div {
+                max-width: 95% !important;
+                max-height: 95vh !important;
+                margin: 1rem auto !important;
+            }
+            
+            #contentForm {
+                padding: 1rem !important;
+            }
+        }
+        
+        /* Ensure modal header and footer stay fixed */
+        #contentModal > div > div:first-child {
+            flex-shrink: 0;
+        }
+        
+        #contentModal > div > div:last-child {
+            flex-shrink: 0;
+        }
+    </style>
     @endpush
 </x-admin-layout>
 

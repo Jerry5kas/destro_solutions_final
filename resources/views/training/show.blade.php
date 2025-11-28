@@ -11,6 +11,7 @@
         $availableSpots = $training->max_students ? max(0, $training->max_students - $paidEnrollments) : null;
         $currencyCode = $training->resolvedCurrencyCode();
         $formattedPrice = \App\Support\Money::format($training->price, $currencyCode);
+        $isAdminUser = auth()->check() && auth()->user()->isAdmin();
     @endphp
 
     <x-navbar variant="complex" prefix="page" hideNavLogo="true"/>
@@ -304,7 +305,7 @@
                                 </a>
                             </div>
                         @else
-                            <form method="POST" action="{{ route('training.enroll', $training->slug) }}" class="mt-6 space-y-6">
+                            <form method="POST" action="{{ route('training.enroll', $training->slug) }}" class="mt-6 space-y-6" @if(!$isAdminUser) data-restricted-form="true" @endif>
                                 @csrf
 
                                 @if ($errors->any())
@@ -352,19 +353,20 @@
                                 @auth
                                     <button type="submit" class="inline-flex w-full items-center justify-center gap-2 rounded-2xl bg-gradient-to-r from-indigo-500 to-indigo-600 py-3.5 text-sm font-semibold text-white shadow-lg shadow-indigo-500/30 transition hover:-translate-y-0.5 hover:shadow-xl disabled:cursor-not-allowed disabled:opacity-60"
                                         @if(!$hasStripe && !$hasRazorpay) disabled @endif
-                                        @if(!$training->hasAvailableSpots() && $training->max_students) disabled @endif>
+                                        @if(!$training->hasAvailableSpots() && $training->max_students) disabled @endif
+                                        @if(!$isAdminUser) data-restricted-action="true" @endif>
                                         {{ __('Enroll & continue to payment') }}
                                     </button>
                                 @else
                                     <div class="rounded-2xl border border-indigo-100 bg-indigo-50/70 p-4 text-center text-sm text-indigo-700">
                                         <p class="mb-3 font-medium">{{ __('Please sign in to enroll in this training.') }}</p>
                                         <div class="flex gap-3">
-                                            <a href="{{ route('login') }}" class="flex-1 rounded-2xl bg-indigo-500 py-2.5 text-sm font-semibold text-white shadow-sm transition hover:bg-indigo-600">
+                                            <button type="button" class="restricted-action-btn flex-1 rounded-2xl bg-indigo-500 py-2.5 text-sm font-semibold text-white shadow-sm transition hover:bg-indigo-600" data-restricted-action="true" onclick="if(typeof showAdminContactAlert === 'function') { showAdminContactAlert(event); } else { alert('Please contact the administrator for more details.'); } return false;">
                                                 {{ __('Sign in') }}
-                                            </a>
-                                            <a href="{{ route('register') }}" class="flex-1 rounded-2xl border border-indigo-500 py-2.5 text-sm font-semibold text-indigo-600 transition hover:bg-indigo-500 hover:text-white">
+                                            </button>
+                                            <button type="button" class="restricted-action-btn flex-1 rounded-2xl border border-indigo-500 py-2.5 text-sm font-semibold text-indigo-600 transition hover:bg-indigo-500 hover:text-white" data-restricted-action="true" onclick="if(typeof showAdminContactAlert === 'function') { showAdminContactAlert(event); } else { alert('Please contact the administrator for more details.'); } return false;">
                                                 {{ __('Create account') }}
-                                            </a>
+                                            </button>
                                         </div>
                                     </div>
                                 @endauth
@@ -397,4 +399,125 @@
         </div>
     </main>
 </x-layout>
+
+@push('scripts')
+    <script>
+        const isAdmin = @json($isAdminUser ?? false);
+        const adminContactMessage = 'Please contact the administrator for more details.';
+        
+        // Create notification element (global function)
+        function showAdminContactAlert(event) {
+            if (event) {
+                event.preventDefault();
+                event.stopPropagation();
+                event.stopImmediatePropagation();
+            }
+            
+            if (isAdmin) {
+                return true; // Allow admins to proceed
+            }
+            
+            // Remove existing notification if any
+            const existing = document.getElementById('admin-contact-notification');
+            if (existing) {
+                existing.remove();
+            }
+            
+            // Create notification element
+            const notification = document.createElement('div');
+            notification.id = 'admin-contact-notification';
+            notification.style.cssText = `
+                position: fixed;
+                top: 20px;
+                left: 50%;
+                transform: translateX(-50%);
+                background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+                color: white;
+                padding: 16px 32px;
+                border-radius: 12px;
+                box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
+                z-index: 100000;
+                font-weight: 500;
+                font-size: 15px;
+                text-align: center;
+                max-width: 90%;
+                animation: slideDown 0.3s ease-out;
+            `;
+            notification.textContent = adminContactMessage;
+            
+            // Add animation styles if not already added
+            if (!document.getElementById('notification-styles')) {
+                const style = document.createElement('style');
+                style.id = 'notification-styles';
+                style.textContent = `
+                    @keyframes slideDown {
+                        from {
+                            opacity: 0;
+                            transform: translateX(-50%) translateY(-20px);
+                        }
+                        to {
+                            opacity: 1;
+                            transform: translateX(-50%) translateY(0);
+                        }
+                    }
+                    @keyframes fadeOut {
+                        from {
+                            opacity: 1;
+                            transform: translateX(-50%) translateY(0);
+                        }
+                        to {
+                            opacity: 0;
+                            transform: translateX(-50%) translateY(-20px);
+                        }
+                    }
+                `;
+                document.head.appendChild(style);
+            }
+            
+            document.body.appendChild(notification);
+            
+            // Auto remove after 4 seconds
+            setTimeout(() => {
+                notification.style.animation = 'fadeOut 0.3s ease-out';
+                setTimeout(() => {
+                    notification.remove();
+                }, 300);
+            }, 4000);
+            
+            return false;
+        }
+        
+        document.addEventListener('DOMContentLoaded', function() {
+            console.log('Training page script loaded. isAdmin:', isAdmin);
+            
+            // Only run restriction logic for non-admin users
+            if (!isAdmin) {
+                // Handle button clicks via event listeners (backup to onclick)
+                const restrictedClicks = document.querySelectorAll('[data-restricted-action="true"]');
+                console.log('Found restricted buttons:', restrictedClicks.length);
+                
+                restrictedClicks.forEach((el, index) => {
+                    console.log('Attaching listener to button', index, el);
+                    el.addEventListener('click', function(event) {
+                        console.log('Button clicked via listener!');
+                        showAdminContactAlert(event);
+                    }, true); // Use capture phase
+                });
+
+                // Handle form submissions
+                const restrictedForms = document.querySelectorAll('[data-restricted-form="true"]');
+                console.log('Found restricted forms:', restrictedForms.length);
+                
+                restrictedForms.forEach((form) => {
+                    form.addEventListener('submit', function(event) {
+                        console.log('Form submitted!');
+                        showAdminContactAlert(event);
+                    }, true); // Use capture phase
+                });
+            } else {
+                console.log('User is admin, restrictions not applied');
+            }
+        });
+    </script>
+@endpush
 

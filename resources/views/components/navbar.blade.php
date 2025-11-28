@@ -173,9 +173,6 @@
                   <a href="{{ route('login') }}" class="block px-4 py-2 text-sm text-gray-700 hover:bg-[#0D0DE0] hover:text-white">
                     {{ __('Sign In') }}
                   </a>
-                  <a href="{{ route('register') }}" class="block px-4 py-2 text-sm text-gray-700 hover:bg-[#0D0DE0] hover:text-white">
-                    {{ __('Sign Up') }}
-                  </a>
                 @endauth
               </div>
             </div>
@@ -236,7 +233,6 @@
           </form>
         @else
           <a href="{{ route('login') }}" class="block py-2 text-sm font-semibold text-[#0D0DE0]">{{ __('Sign In') }}</a>
-          <a href="{{ route('register') }}" class="block py-2 text-sm font-semibold text-[#0D0DE0]">{{ __('Sign Up') }}</a>
         @endauth
       </div>
     </div>
