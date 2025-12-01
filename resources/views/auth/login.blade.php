@@ -32,8 +32,6 @@
                 </div>
 
                 <button type="submit" style="width:100%; padding: .9rem 1rem; background:#0D0DE0; color:white; border:none; border-radius: 10px; font-weight:600; cursor:pointer;">Sign in</button>
-
-                <p style="margin-top:1rem; text-align:center; color:#6b7280; font-size:.9rem;">Don't have an account? <a href="{{ route('register') }}" style="color:#0D0DE0; font-weight:600;">Create one</a></p>
             </form>
         </div>
 </x-auth-layout>

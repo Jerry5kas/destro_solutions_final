@@ -5,9 +5,24 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Str;
 use App\Support\Money;
+use App\Support\Translatable;
 
 class ContentItem extends Model
 {
+    use Translatable;
+
+    /**
+     * Fields that should be translatable.
+     */
+    protected $translatable = [
+        'title',
+        'description',
+        'prerequisites',
+        'instructor_name',
+        'instructor_bio',
+        'certification_details',
+    ];
+
     protected $fillable = [
         'type',
         'title',
@@ -41,6 +56,7 @@ class ContentItem extends Model
         'certification_available',
         'certification_details',
         'is_enrollable',
+        'editor_content', // For blog custom editor content
     ];
 
     protected $appends = [
@@ -58,6 +74,7 @@ class ContentItem extends Model
         'price' => 'decimal:2',
         'is_enrollable' => 'boolean',
         'certification_available' => 'boolean',
+        'editor_content' => 'array', // For blog custom editor content (JSON)
     ];
 
     public function currencyModel()

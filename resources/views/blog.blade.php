@@ -41,8 +41,15 @@
         };
 
         $postLink = static function ($item): string {
-            if ($item?->slug && \Illuminate\Support\Facades\Route::has('content.show')) {
-                return route('content.show', $item->slug);
+            if ($item?->slug) {
+                // Use blog.show route for blog posts
+                if ($item->type === 'blog' && \Illuminate\Support\Facades\Route::has('blog.show')) {
+                    return route('blog.show', $item->slug);
+                }
+                // Fallback to content.show for other types
+                if (\Illuminate\Support\Facades\Route::has('content.show')) {
+                    return route('content.show', $item->slug);
+                }
             }
 
             return '#';

@@ -130,7 +130,21 @@ class ContentController extends Controller
             unset($validated['outcomes_text'], $validated['materials_text']);
         }
 
+        // Handle editor_content for blog type
+        if ($type === 'blog' && $request->has('editor_content')) {
+            $editorContent = $request->input('editor_content');
+            if (!empty($editorContent)) {
+                $validated['editor_content'] = json_decode($editorContent, true);
+            }
+        }
+
         ContentItem::create($validated);
+
+        // Redirect blog posts to blog list, others to their type list
+        if ($type === 'blog') {
+            return redirect()->route('admin.content.index', $type)
+                ->with('success', 'Blog post created successfully.');
+        }
 
         return redirect()->route('admin.content.index', $type)
             ->with('success', 'Content item created successfully.');
@@ -232,7 +246,23 @@ class ContentController extends Controller
             unset($validated['outcomes_text'], $validated['materials_text']);
         }
 
+        // Handle editor_content for blog type
+        if ($type === 'blog' && $request->has('editor_content')) {
+            $editorContent = $request->input('editor_content');
+            if (!empty($editorContent)) {
+                $validated['editor_content'] = json_decode($editorContent, true);
+            } else {
+                $validated['editor_content'] = null;
+            }
+        }
+
         $item->update($validated);
+
+        // Redirect blog posts to blog list, others to their type list
+        if ($type === 'blog') {
+            return redirect()->route('admin.content.index', $type)
+                ->with('success', 'Blog post updated successfully.');
+        }
 
         return redirect()->route('admin.content.index', $type)
             ->with('success', 'Content item updated successfully.');
@@ -253,5 +283,72 @@ class ContentController extends Controller
 
         return redirect()->route('admin.content.index', $type)
             ->with('success', 'Content item deleted successfully.');
+    }
+
+    /**
+     * Handle file upload for editor
+     */
+    public function uploadFile(Request $request)
+    {
+        $request->validate([
+            'file' => 'required|file|max:10240', // 10MB max
+        ]);
+
+        $file = $request->file('file');
+        $path = $file->store('editor/files', 'public');
+
+        return response()->json([
+            'success' => true,
+            'url' => asset('storage/' . $path),
+            'filename' => $file->getClientOriginalName(),
+        ]);
+    }
+
+    /**
+     * Handle image upload(s) for editor
+     */
+    public function uploadImages(Request $request)
+    {
+        $request->validate([
+            'images' => 'required|array',
+            'images.*' => 'image|max:5120', // 5MB max per image
+        ]);
+
+        $urls = [];
+        foreach ($request->file('images') as $image) {
+            $path = $image->store('editor/images', 'public');
+            $urls[] = asset('storage/' . $path);
+        }
+
+        return response()->json([
+            'success' => true,
+            'urls' => $urls,
+        ]);
+    }
+
+    /**
+     * Show the form for creating a new blog post.
+     */
+    public function createBlog()
+    {
+        $categories = Category::where('is_active', true)->orderBy('order')->get();
+        return view('admin.content.blog-form', [
+            'blog' => null,
+            'categories' => $categories,
+        ]);
+    }
+
+    /**
+     * Show the form for editing the specified blog post.
+     */
+    public function editBlog($id)
+    {
+        $blog = ContentItem::where('type', 'blog')->findOrFail($id);
+        $categories = Category::where('is_active', true)->orderBy('order')->get();
+        
+        return view('admin.content.blog-form', [
+            'blog' => $blog,
+            'categories' => $categories,
+        ]);
     }
 }

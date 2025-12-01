@@ -5,8 +5,8 @@
     $description = $hero['description'] ?? __("Innovative Tomorrow's Mobility");
     $ctaLabel = $hero['cta_label'] ?? __('Connect Us');
     $ctaHref = $hero['cta_href'] ?? '#contact';
-    $imageUrl = $hero['image_url'] ?? asset('images/main.png');
-    $videoUrl = $hero['video_url'] ?? asset('video/default-video.mp4');
+    $imageUrl = $hero['image_url'] ?? asset('images/main-white.png');
+    $videoUrl = $hero['video_url'] ?? asset('video/main-video.mp4');
 
     $descriptionPrimary = trim($description);
     $descriptionAccent = null;
@@ -52,7 +52,7 @@
     <div class="absolute inset-0 bg-black/10 z-10 pointer-events-none"></div>
 
     <!-- Content -->
-    <div class="relative z-20 h-full flex items-center pointer-events-none">
+    <div class="relative z-20 h-full flex items-center pointer-events-none hero-content">
         <div class="mx-auto max-w-[1280px] px-4 md:px-8 w-full">
             <div class="w-full  space-y-10">
                 <div class="space-y-10">
@@ -118,6 +118,18 @@
     }
 
     .hero-main:not(:hover) .hero-video {
+        transition: opacity 800ms cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+    /* Hide content when hovering (video is playing) */
+    .hero-content {
+        opacity: 1;
+        transition: opacity 800ms cubic-bezier(0.4, 0, 0.2, 1);
+        will-change: opacity;
+    }
+
+    .hero-main:hover .hero-content {
+        opacity: 0;
         transition: opacity 800ms cubic-bezier(0.4, 0, 0.2, 1);
     }
 

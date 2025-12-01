@@ -34,6 +34,7 @@ Route::get('/products/{category?}', [PageController::class, 'products'])->name('
 
 Route::get('/training/{category?}', [PageController::class, 'training'])->name('training');
 Route::get('/blog', [PageController::class, 'blog'])->name('blog');
+Route::get('/blog/{slug}', [PageController::class, 'blogShow'])->name('blog.show');
 Route::get('/content/{slug}', [PageController::class, 'contentItemShow'])->name('content.show');
 Route::get('/contact', [PageController::class, 'contact'])->name('contact');
 Route::post('/contact', [ContactController::class, 'store'])->name('contact.store');
@@ -56,7 +57,7 @@ Route::post('/webhooks/razorpay', [PaymentWebhookController::class, 'razorpay'])
 
 // User Auth Routes (prevent admins from accessing)
 Route::middleware([\App\Http\Middleware\EnsureUserIsNotAdmin::class])->group(function () {
-    Route::get('/register', [RegisterController::class, 'show'])->name('register');
+    Route::get('/register-new-user', [RegisterController::class, 'show'])->name('register');
     Route::post('/register', [RegisterController::class, 'store']);
     Route::get('/login', [LoginController::class, 'show'])->name('login');
     Route::post('/login', [LoginController::class, 'store']);
@@ -130,6 +131,16 @@ Route::prefix('admin')->name('admin.')->group(function () {
             Route::put('/{type}/{id}', [ContentController::class, 'update'])->name('update');
             Route::delete('/{type}/{id}', [ContentController::class, 'destroy'])->name('destroy');
         });
+        
+        // Blog-specific create/edit routes (dedicated pages for better UX)
+        Route::prefix('content/blog')->name('content.blog.')->group(function () {
+            Route::get('/create', [ContentController::class, 'createBlog'])->name('create');
+            Route::get('/{id}/edit', [ContentController::class, 'editBlog'])->name('edit');
+        });
+
+        // Editor Upload Routes (for blog custom editor)
+        Route::post('/upload-file', [ContentController::class, 'uploadFile'])->name('upload-file');
+        Route::post('/upload-images', [ContentController::class, 'uploadImages'])->name('upload-images');
 
         // Banners & Hero Section
         Route::resource('banners', BannerController::class)->except(['create', 'edit', 'show']);
@@ -147,5 +158,11 @@ Route::prefix('admin')->name('admin.')->group(function () {
         // SEO Management Routes
         Route::get('/seo', [SeoController::class, 'index'])->name('seo.index');
         Route::put('/seo/{page}', [SeoController::class, 'update'])->name('seo.update');
+        
+        // Translation Management Routes
+        Route::get('/translations', [\App\Http\Controllers\Admin\TranslationController::class, 'index'])->name('translations.index');
+        Route::post('/translations/sync', [\App\Http\Controllers\Admin\TranslationController::class, 'sync'])->name('translations.sync');
+        Route::get('/translations/{id}', [\App\Http\Controllers\Admin\TranslationController::class, 'show'])->name('translations.show');
+        Route::put('/translations/{id}', [\App\Http\Controllers\Admin\TranslationController::class, 'update'])->name('translations.update');
     });
 });

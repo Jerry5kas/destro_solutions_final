@@ -218,6 +218,52 @@ class PageController extends Controller
     }
 
     /**
+     * Display an individual blog post.
+     */
+    public function blogShow(string $slug)
+    {
+        $blog = ContentItem::with('category')
+            ->where('type', 'blog')
+            ->where('slug', $slug)
+            ->where('status', 'active')
+            ->firstOrFail();
+
+        $bannerDescription = Str::limit(strip_tags($blog->description ?? ''), 200);
+
+        $relatedBlogs = ContentItem::with('category')
+            ->where('type', 'blog')
+            ->where('status', 'active')
+            ->where('id', '!=', $blog->id)
+            ->when($blog->category_id, function ($query) use ($blog) {
+                $query->where('category_id', $blog->category_id);
+            })
+            ->orderByDesc('date')
+            ->orderByDesc('created_at')
+            ->take(8)
+            ->get();
+
+        if ($relatedBlogs->count() < 4) {
+            $additional = ContentItem::with('category')
+                ->where('type', 'blog')
+                ->where('status', 'active')
+                ->where('id', '!=', $blog->id)
+                ->whereNotIn('id', $relatedBlogs->pluck('id'))
+                ->orderByDesc('date')
+                ->orderByDesc('created_at')
+                ->take(8 - $relatedBlogs->count())
+                ->get();
+
+            $relatedBlogs = $relatedBlogs->concat($additional);
+        }
+
+        return view('blog.show', [
+            'blog' => $blog,
+            'bannerDescription' => $bannerDescription,
+            'relatedBlogs' => $relatedBlogs,
+        ]);
+    }
+
+    /**
      * Display an individual content item detail page.
      */
     public function contentItemShow(string $slug)
@@ -226,6 +272,11 @@ class PageController extends Controller
             ->where('slug', $slug)
             ->where('status', 'active')
             ->firstOrFail();
+        
+        // Redirect blog posts to blog show page
+        if ($contentItem->type === 'blog') {
+            return redirect()->route('blog.show', $contentItem->slug);
+        }
 
         $bannerDescription = Str::limit(strip_tags($contentItem->description ?? ''), 200);
 
